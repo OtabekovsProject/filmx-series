@@ -1,0 +1,60 @@
+{
+  "name": "FilmX — Milliy va Xorijiy Kinolar",
+  "short_name": "FilmX",
+  "description": "918+ ta kino va seriallar o'zbek tilida Full HD sifatda bepul va tezkor tomosha qiling",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060913",
+  "theme_color": "#060913",
+  "orientation": "any",
+  "categories": ["entertainment", "movies", "video"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Seriallar",
+      "short_name": "Seriallar",
+      "description": "Barcha premyera seriallar",
+      "url": "/catalog?type=series",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tarjima Kinolar",
+      "short_name": "Kinolar",
+      "description": "Eng so'nggi tarjima kinolar",
+      "url": "/catalog?type=movie",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sevimlilarim",
+      "short_name": "Sevimlilar",
+      "description": "Saqlangan kinolar to'plami",
+      "url": "/favorites",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
