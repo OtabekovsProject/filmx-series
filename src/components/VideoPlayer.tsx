@@ -510,194 +510,142 @@ export default function VideoPlayer({
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {/* Skip 10s */}
-            <div style={{ display: 'flex', gap: '4px' }}>
-              <button
-                onClick={() => skipTime(-10, 'left')}
-                className="btn-secondary"
-                style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px' }}
-                title="10s orqaga (←)"
-              >
-                ⏪ -10s
-              </button>
-              <button
-                onClick={() => skipTime(10, 'right')}
-                className="btn-secondary"
-                style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px' }}
-                title="10s oldinga (→)"
-              >
-                +10s ⏩
-              </button>
-            </div>
-
-            {/* Quality Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '2px 6px' }}>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Sifat:</span>
-              {['1080p FHD', '720p HD', '480p'].map((q) => (
+          <div className="player-controls-toolbar">
+            {/* Left Group: Navigation & Media settings */}
+            <div className="player-toolbar-group player-toolbar-left">
+              {/* Skip 10s */}
+              <div style={{ display: 'flex', gap: '4px' }}>
                 <button
-                  key={q}
-                  onClick={() => setSelectedQuality(q)}
-                  style={{
-                    background: selectedQuality.includes(q.split(' ')[0]) ? 'var(--brand-primary)' : 'transparent',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    padding: '3px 8px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
+                  onClick={() => skipTime(-10, 'left')}
+                  className="player-tool-btn"
+                  title="10s orqaga (←)"
                 >
-                  {q}
+                  ⏪ -10s
                 </button>
-              ))}
-            </div>
-
-            {/* Speed Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '2px 6px' }}>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Tezlik:</span>
-              {[0.75, 1, 1.25, 1.5, 2].map((s) => (
                 <button
-                  key={s}
-                  onClick={() => handleSpeedChange(s)}
-                  style={{
-                    background: playbackSpeed === s ? 'var(--brand-primary)' : 'transparent',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    padding: '3px 6px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
+                  onClick={() => skipTime(10, 'right')}
+                  className="player-tool-btn"
+                  title="10s oldinga (→)"
                 >
-                  {s}x
+                  +10s ⏩
                 </button>
-              ))}
+              </div>
+
+              {/* Quality Selector */}
+              <div className="player-pill-group">
+                <span className="player-pill-label">Sifat:</span>
+                {['1080p FHD', '720p HD', '480p'].map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => setSelectedQuality(q)}
+                    className={`player-pill-btn ${selectedQuality.includes(q.split(' ')[0]) ? 'active' : ''}`}
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+
+              {/* Speed Selector */}
+              <div className="player-pill-group">
+                <span className="player-pill-label">Tezlik:</span>
+                {[0.75, 1, 1.25, 1.5, 2].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleSpeedChange(s)}
+                    className={`player-pill-btn ${playbackSpeed === s ? 'active' : ''}`}
+                  >
+                    {s}x
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Picture in Picture Button */}
-            <button
-              onClick={togglePiP}
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '6px' }}
-              title="Kichik oyna (Picture-in-Picture / P)"
-            >
-              📺 PiP
-            </button>
-
-            {/* Sleep Timer Dropdown */}
-            <select
-              value={sleepTimerMinutes === null ? '' : sleepTimerMinutes.toString()}
-              onChange={(e) => setSleepTimer(e.target.value ? parseInt(e.target.value) : null)}
-              style={{
-                background: sleepTimerMinutes ? 'rgba(255, 183, 3, 0.2)' : 'rgba(255,255,255,0.06)',
-                color: sleepTimerMinutes ? '#ffb703' : '#fff',
-                border: sleepTimerMinutes ? '1px solid #ffb703' : '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '5px 8px',
-                fontSize: '12px',
-                fontWeight: 700,
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-              title="Avto-o'chirish taymeri"
-            >
-              <option value="">⏰ Taymer: O'chiq</option>
-              <option value="15">⏰ 15 daqiqa</option>
-              <option value="30">⏰ 30 daqiqa</option>
-              <option value="45">⏰ 45 daqiqa</option>
-              <option value="60">⏰ 60 daqiqa</option>
-            </select>
-
-            {/* Mark as Watched */}
-            {mediaItem && (
+            {/* Right Group: Display Modes & Actions */}
+            <div className="player-toolbar-group player-toolbar-right">
+              {/* Picture in Picture Button */}
               <button
-                onClick={handleToggleWatched}
-                className="btn-secondary"
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '12px',
-                  borderRadius: '6px',
-                  background: watched ? 'rgba(16, 185, 129, 0.2)' : undefined,
-                  color: watched ? '#34d399' : undefined,
-                  border: watched ? '1px solid #34d399' : undefined
-                }}
-                title={watched ? "Ko'rilgan asar" : "Ko'rilgan deb belgilash"}
+                onClick={togglePiP}
+                className="player-tool-btn"
+                title="Kichik oyna (Picture-in-Picture / P)"
               >
-                {watched ? '✓ Ko\'rildi' : '○ Ko\'rildi deb belgilash'}
+                📺 PiP
               </button>
-            )}
 
-            {/* Theater Mode Toggle */}
-            <button
-              onClick={() => setIsTheaterMode(!isTheaterMode)}
-              className="btn-secondary"
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                borderRadius: '6px',
-                background: isTheaterMode ? 'rgba(0, 242, 254, 0.2)' : undefined,
-                color: isTheaterMode ? 'var(--accent-cyan)' : undefined,
-                border: isTheaterMode ? '1px solid var(--accent-cyan)' : undefined
-              }}
-              title="Keng ekran / Teatr rejimi"
-            >
-              📺 {isTheaterMode ? 'Ixcham' : 'Keng ekran'}
-            </button>
-
-            {/* Cinema mode toggle */}
-            <button
-              onClick={() => setIsCinemaMode(!isCinemaMode)}
-              className="btn-secondary"
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                borderRadius: '6px',
-                background: isCinemaMode ? 'var(--brand-primary)' : undefined,
-                color: isCinemaMode ? '#fff' : undefined
-              }}
-              title="Kino zali rejimi (Fonni qoraytirish)"
-            >
-              🎬 {isCinemaMode ? 'Zalni ochish' : 'Kino zali'}
-            </button>
-
-            {/* Telegram share */}
-            <button
-              onClick={handleTelegramShare}
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '6px', background: 'rgba(0,136,204,0.15)', color: '#38bdf8', borderColor: 'rgba(0,136,204,0.3)' }}
-              title="Telegram orqali ulashish"
-            >
-              ✈️ Telegram
-            </button>
-
-            {/* Share button */}
-            <button
-              onClick={handleShare}
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '6px' }}
-              title="Havolani nusxalash"
-            >
-              🔗 Havola
-            </button>
-
-            {/* Direct Download Button */}
-            {src && (
-              <a
-                href={src}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                className="btn-secondary"
-                style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '6px' }}
-                title="To'g'ridan-to'g'ri yuklab olish"
+              {/* Sleep Timer Dropdown */}
+              <select
+                value={sleepTimerMinutes === null ? '' : sleepTimerMinutes.toString()}
+                onChange={(e) => setSleepTimer(e.target.value ? parseInt(e.target.value) : null)}
+                className="player-tool-select"
+                title="Avto-o'chirish taymeri"
               >
-                📥 Yuklash
-              </a>
-            )}
+                <option value="">⏰ Taymer: O'chiq</option>
+                <option value="15">⏰ 15 daqiqa</option>
+                <option value="30">⏰ 30 daqiqa</option>
+                <option value="45">⏰ 45 daqiqa</option>
+                <option value="60">⏰ 60 daqiqa</option>
+              </select>
+
+              {/* Mark as Watched */}
+              {mediaItem && (
+                <button
+                  onClick={handleToggleWatched}
+                  className={`player-tool-btn ${watched ? 'watched-active' : ''}`}
+                  title={watched ? "Ko'rilgan asar" : "Ko'rilgan deb belgilash"}
+                >
+                  {watched ? '✓ Ko\'rildi' : '○ Ko\'rildi deb belgilash'}
+                </button>
+              )}
+
+              {/* Theater Mode Toggle */}
+              <button
+                onClick={() => setIsTheaterMode(!isTheaterMode)}
+                className={`player-tool-btn ${isTheaterMode ? 'theater-active' : ''}`}
+                title="Keng ekran / Teatr rejimi"
+              >
+                📺 {isTheaterMode ? 'Ixcham' : 'Keng ekran'}
+              </button>
+
+              {/* Cinema mode toggle */}
+              <button
+                onClick={() => setIsCinemaMode(!isCinemaMode)}
+                className={`player-tool-btn ${isCinemaMode ? 'cinema-active' : ''}`}
+                title="Kino zali rejimi (Fonni qoraytirish)"
+              >
+                🎬 {isCinemaMode ? 'Zalni ochish' : 'Kino zali'}
+              </button>
+
+              {/* Telegram share */}
+              <button
+                onClick={handleTelegramShare}
+                className="player-tool-btn telegram-share-btn"
+                title="Telegram orqali ulashish"
+              >
+                ✈️ Telegram
+              </button>
+
+              {/* Share button */}
+              <button
+                onClick={handleShare}
+                className="player-tool-btn"
+                title="Havolani nusxalash"
+              >
+                🔗 Havola
+              </button>
+
+              {/* Direct Download Button */}
+              {src && (
+                <a
+                  href={src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="player-tool-btn"
+                  title="To'g'ridan-to'g'ri yuklab olish"
+                >
+                  📥 Yuklash
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>

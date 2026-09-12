@@ -55,11 +55,11 @@ export default function Footer() {
               }}>SERIES</span>
             </div>
             <p style={{ fontSize: '13px', lineHeight: 1.7, color: 'var(--text-dim)', marginBottom: '20px' }}>
-              FilmX Series — 918+ ta kino va seriallarni 1080p Full HD sifatda,
+              FilmX Series — 930+ ta kino va seriallarni 1080p Full HD sifatda,
               o&apos;zbek tilida tarjima qilingan holda tomosha qilish portali.
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
-              {['🎬 843 Kino', '📺 75 Serial', '🌐 O\'zbek tilida'].map((badge, i) => (
+              {['🎬 843+ Kino', '📺 75+ Serial', '🌐 O\'zbek tilida'].map((badge, i) => (
                 <span key={i} style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.08)',

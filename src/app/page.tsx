@@ -56,14 +56,7 @@ export default function HomePage() {
 
 
         {/* Category Quick Filter Row */}
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          overflowX: 'auto',
-          paddingBottom: '28px',
-          marginBottom: '36px',
-          scrollbarWidth: 'none',
-        }}>
+        <div className="quick-filters-row">
           {CATEGORIES.map((cat, i) => (
             <Link
               key={i}
