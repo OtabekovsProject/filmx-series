@@ -168,6 +168,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     return origSet.apply(this, arguments);
                   };
                 } catch (e) {}
+
+                // Next.js ChunkLoadError & Vercel deployment mismatch auto-recovery
+                function handleChunkError(e) {
+                  try {
+                    var msg = (e && e.message) || (e && e.reason && (e.reason.message || e.reason.name)) || '';
+                    var target = e && e.target;
+                    var isChunk = msg.indexOf('Loading chunk') !== -1 ||
+                                  msg.indexOf('ChunkLoadError') !== -1 ||
+                                  msg.indexOf('MIME type') !== -1 ||
+                                  (target && target.tagName === 'SCRIPT' && target.src && target.src.indexOf('/_next/static/') !== -1);
+                    if (isChunk) {
+                      var key = 'filmx_chunk_retry_time';
+                      var last = sessionStorage.getItem(key);
+                      var now = Date.now();
+                      if (!last || (now - parseInt(last, 10)) > 8000) {
+                        sessionStorage.setItem(key, now.toString());
+                        console.warn('FilmX: Yangi versiya yuklanmoqda...');
+                        window.location.reload();
+                      }
+                    }
+                  } catch (err) {}
+                }
+                window.addEventListener('error', handleChunkError, true);
+                window.addEventListener('unhandledrejection', handleChunkError);
               })();
             `
           }}

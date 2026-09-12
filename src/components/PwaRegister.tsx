@@ -12,20 +12,22 @@ export default function PwaRegister() {
         navigator.serviceWorker
           .register('/sw.js')
           .then((registration) => {
-            // Check for updates
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
             registration.addEventListener('updatefound', () => {
               const newWorker = registration.installing;
               if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('FilmX: Yangi versiya yuklandi!');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
                   }
                 });
               }
             });
           })
           .catch((err) => {
-            console.error('FilmX ServiceWorker ro\'yxatdan o\'tishda xato:', err);
+            console.warn('FilmX ServiceWorker error:', err);
           });
       });
     }

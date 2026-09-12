@@ -3,37 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useFavorites } from '@/hooks/useFavorites';
+import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { useState, useEffect } from 'react';
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { favoritesCount, isLoaded } = useFavorites();
-  const [canInstall, setCanInstall] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
+  const { canInstall, promptInstall } = usePwaInstall();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setCanInstall(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setCanInstall(false);
-    }
-    setDeferredPrompt(null);
-  };
 
   const handleOpenSearch = () => {
     window.dispatchEvent(new CustomEvent('filmx_open_search'));
@@ -109,7 +90,7 @@ export default function MobileBottomNav() {
 
         {/* 6. PWA Install (only if installable) */}
         {canInstall && (
-          <button onClick={handleInstallClick} className="mobile-dock-item mobile-dock-install" aria-label="Ilovani o'rnatish">
+          <button onClick={promptInstall} className="mobile-dock-item mobile-dock-install" aria-label="Ilovani o'rnatish">
             <div className="mobile-dock-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

@@ -16,12 +16,14 @@ const NAV_ITEMS = [
   { label: 'Sevimlilar', href: '/favorites', exact: true },
 ];
 
+import { usePwaInstall } from '@/hooks/usePwaInstall';
+
 export default function Navbar() {
   const pathname = usePathname();
   const { favoritesCount, isLoaded } = useFavorites();
+  const { canInstall, promptInstall } = usePwaInstall();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -34,32 +36,17 @@ export default function Navbar() {
     };
     const handleScroll = () => setScrolled(window.scrollY > 20);
     const handleGlobalSearch = () => setIsSearchOpen(true);
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('filmx_open_search', handleGlobalSearch);
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('filmx_open_search', handleGlobalSearch);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     };
   }, []);
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-    }
-  };
 
   const isActive = (item: typeof NAV_ITEMS[0]) => {
     if (!mounted) return false;
@@ -145,9 +132,9 @@ export default function Navbar() {
             </button>
 
             {/* PWA Install Button (If supported by browser) */}
-            {deferredPrompt && (
+            {canInstall && (
               <button
-                onClick={handleInstall}
+                onClick={promptInstall}
                 className="pwa-install-header-btn"
                 title="FilmX ilovasini o'rnatish"
               >

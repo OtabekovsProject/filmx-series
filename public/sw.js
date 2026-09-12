@@ -2,7 +2,7 @@
 // FILMX SERVICE WORKER — ULTRA-FAST CACHING & OFFLINE PWA
 // ═════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'filmx-v2.0';
+const CACHE_NAME = 'filmx-v3.0';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -37,20 +37,42 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Allow clients to trigger skipWaiting
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // 3. Fetch strategy: Smart routing based on request type
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests, non-http, Next.js internal chunks & dev endpoints
+  // Skip non-GET requests and non-http requests
+  if (request.method !== 'GET' || !request.url.startsWith('http')) {
+    return;
+  }
+
+  // CRITICAL: Completely bypass Service Worker for Next.js internal chunks & HMR
   if (
-    request.method !== 'GET' ||
-    !request.url.startsWith('http') ||
     url.pathname.startsWith('/_next/') ||
-    url.pathname.includes('/_next/webpack-hmr') ||
-    url.pathname.includes('__nextjs_original-stack-frames') ||
+    url.pathname.includes('/_next/') ||
+    url.pathname.includes('webpack-hmr') ||
     url.pathname.includes('hot-update')
   ) {
+    return;
+  }
+
+  // CRITICAL: Next.js App Router RSC payload & prefetch requests must never be intercepted or faked as 408
+  const isRSC =
+    request.headers.get('RSC') === '1' ||
+    request.headers.get('Next-Router-State-Tree') ||
+    request.headers.get('Next-Url') ||
+    url.searchParams.has('_rsc');
+
+  if (isRSC) {
+    // Let browser handle native network request
     return;
   }
 
@@ -75,7 +97,6 @@ self.addEventListener('fetch', (event) => {
               return networkResponse;
             })
             .catch(() => {
-              // Return fallback poster if offline
               return cache.match('/icons/icon-192x192.png');
             });
         });
@@ -84,7 +105,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // B. Search API: Stale-While-Revalidate (Instant search from cache, revalidates in background)
+  // B. Search API: Stale-While-Revalidate
   if (url.pathname === '/api/search') {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
@@ -118,10 +139,14 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => {
-          return caches.match(request).then((cached) => {
-            if (cached) return cached;
-            return caches.match('/');
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          const rootCached = await caches.match('/');
+          if (rootCached) return rootCached;
+          return new Response('Internet aloqasi yo\'q. Iltimos tarmoqni tekshiring.', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
           });
         })
     );
@@ -143,7 +168,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           if (cachedResponse) return cachedResponse;
-          return new Response('', { status: 408, statusText: 'Offline or Network Error' });
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
         });
 
       return cachedResponse || fetchPromise;
