@@ -12,9 +12,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
-  description: 'FilmX — barcha premyera kinolar, ko\'p qismli seriallar, hind va xorij filmlarini yuqori sifatda tomosha qiling.',
-  keywords: ['FilmX', 'Seriallar', 'Tarjima kinolar', 'Uzbek tilida', 'HD kino', '1080p Full HD'],
+  metadataBase: new URL('https://filmx-series.vercel.app'),
+  title: {
+    default: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
+    template: '%s | FilmX'
+  },
+  description: 'FilmX — 930+ premyera kinolar, ko\'p qismli seriallar, hind va xorij filmlarini 1080p Full HD sifatda bepul tomosha qiling.',
+  keywords: ['FilmX', 'Seriallar', 'Tarjima kinolar', 'Uzbek tilida', 'HD kino', '1080p Full HD', 'Premyera', 'Seriallar 2026'],
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -25,6 +29,32 @@ export const metadata: Metadata = {
     icon: '/icons/icon-192x192.png',
     apple: '/icons/apple-touch-icon.png',
     shortcut: '/favicon.ico',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'uz_UZ',
+    url: 'https://filmx-series.vercel.app',
+    siteName: 'FilmX',
+    title: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
+    description: '930+ premyera kinolar va seriallarni 1080p Full HD sifatda bepul tomosha qiling.',
+    images: [
+      {
+        url: '/icons/icon-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'FilmX',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FilmX — Kinolar va Seriallar Portali',
+    description: '930+ premyera kinolar va seriallarni bepul tomosha qiling.',
+    images: ['/icons/icon-512x512.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

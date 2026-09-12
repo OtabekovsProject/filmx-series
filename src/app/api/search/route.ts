@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getMovies, getSeries } from '@/lib/data';
 
+// Zero-quota static generation: pre-renders as static JSON at build time
+// Zero serverless function invocations on Vercel CDN
+export const dynamic = 'force-static';
+export const revalidate = 86400;
+
 export async function GET() {
   const movies = getMovies().map(m => ({
     id: m.id,
@@ -31,7 +36,7 @@ export async function GET() {
     items: [...movies, ...series]
   }, {
     headers: {
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
+      'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'
     }
   });
 }

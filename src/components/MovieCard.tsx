@@ -59,6 +59,7 @@ export default function MovieCard({ item, variant = 'default' }: MovieCardProps)
             alt={item.title}
             className="media-list-poster-img"
             loading="lazy"
+            decoding="async"
             onLoad={() => setImgLoaded(true)}
             onError={() => {
               setImgSrc('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop');
@@ -199,6 +200,7 @@ export default function MovieCard({ item, variant = 'default' }: MovieCardProps)
           alt={item.title}
           className="poster-img"
           loading="lazy"
+          decoding="async"
           onLoad={() => setImgLoaded(true)}
           onError={() => {
             setImgSrc('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop');

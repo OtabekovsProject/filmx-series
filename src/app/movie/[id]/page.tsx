@@ -4,8 +4,45 @@ import VideoPlayer from '@/components/VideoPlayer';
 import MovieCard from '@/components/MovieCard';
 import { Movie } from '@/types';
 
+import type { Metadata } from 'next';
+
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const item = getMediaById(id) || getMovies().find(m => m.id === id || m.id.includes(id));
+  if (!item) {
+    return { title: 'Kino topilmadi — FilmX' };
+  }
+
+  const title = `${item.title} (${item.year}) Uzbek tilida tomosha qilish — FilmX`;
+  const description = item.description || `${item.title} kinoni 1080p Full HD sifatda FilmX portalida bepul tomosha qiling.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'video.movie',
+      images: [
+        {
+          url: item.backdrop || item.poster,
+          width: 1200,
+          height: 630,
+          alt: item.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [item.backdrop || item.poster],
+    },
+  };
 }
 
 export async function generateStaticParams() {

@@ -22,22 +22,31 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
+let searchCache: SearchItem[] | null = null;
+
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState<SearchItem[]>([]);
+  const [items, setItems] = useState<SearchItem[]>(() => searchCache || []);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      // Load search index
-      fetch('/api/search')
-        .then(res => res.json())
-        .then(data => {
-          if (data?.items) setItems(data.items);
-        })
-        .catch(() => {});
+      if (searchCache && searchCache.length > 0) {
+        setItems(searchCache);
+      } else {
+        // Load search index once and cache in memory
+        fetch('/api/search')
+          .then(res => res.json())
+          .then(data => {
+            if (data?.items) {
+              searchCache = data.items;
+              setItems(data.items);
+            }
+          })
+          .catch(() => {});
+      }
 
       setTimeout(() => {
         inputRef.current?.focus();
@@ -141,7 +150,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="670+ ta kino yoki serial nomini yozing..."
+            placeholder="930+ ta kino yoki serial nomini qidiring..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             style={{
