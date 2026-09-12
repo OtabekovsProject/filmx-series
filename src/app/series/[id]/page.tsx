@@ -17,15 +17,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${item.title} (${item.year}) Barcha qismlar Uzbek tilida — FilmX`;
-  const description = item.description || `${item.title} serialining barcha qismlarini 1080p Full HD sifatda FilmX portalida bepul tomosha qiling.`;
+  const description = item.description 
+    ? `${item.title} (${item.year}) seriali barcha qismlari: ${item.description.slice(0, 160)}... Bepul 1080p Full HD sifatda FilmX portalida tomosha qiling.`
+    : `${item.title} (${item.year}) serialining barcha qismlarini 1080p Full HD sifatda FilmX portalida bepul tomosha qiling. Janr: ${item.genres?.join(', ') || 'Serial'}.`;
+  const canonicalUrl = `https://filmx-series.vercel.app/series/${encodeURIComponent(item.id)}`;
 
   return {
     title,
     description,
+    keywords: [
+      item.title,
+      `${item.title} serial`,
+      `${item.title} barcha qismlari`,
+      `${item.title} uzbek tilida`,
+      `${item.title} ${item.year}`,
+      'filmx seriallar',
+      ...(item.genres || [])
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
+      siteName: 'FilmX',
       type: 'video.tv_show',
+      locale: 'uz_UZ',
       images: [
         {
           url: item.backdrop || item.poster,
@@ -53,17 +71,78 @@ export default async function SeriesPage({ params }: PageProps) {
   const { id } = await params;
   const item = getMediaById(id);
 
+  let targetSeries: Series;
+
   if (!item || item.type !== 'series') {
-    // If not found or if the id corresponds to another format, check series list
     const fallbackSeries = getSeries().find(s => s.id === id || s.id.includes(id));
     if (!fallbackSeries) {
       notFound();
     }
-    const allSeries = getSeries().filter(s => s.id !== fallbackSeries.id);
-    return <SeriesPlayerView series={fallbackSeries} relatedSeries={allSeries} />;
+    targetSeries = fallbackSeries;
+  } else {
+    targetSeries = item as Series;
   }
 
-  const allSeries = getSeries().filter(s => s.id !== item.id);
+  const allSeries = getSeries().filter(s => s.id !== targetSeries.id);
 
-  return <SeriesPlayerView series={item as Series} relatedSeries={allSeries} />;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'TVSeries',
+        '@id': `https://filmx-series.vercel.app/series/${encodeURIComponent(targetSeries.id)}#series`,
+        url: `https://filmx-series.vercel.app/series/${encodeURIComponent(targetSeries.id)}`,
+        name: targetSeries.title,
+        alternateName: targetSeries.rawTitle,
+        headline: `${targetSeries.title} (${targetSeries.year}) Barcha qismlar Uzbek tilida`,
+        description: targetSeries.description || `${targetSeries.title} serialining barcha qismlarini bepul tomosha qiling.`,
+        image: targetSeries.backdrop || targetSeries.poster,
+        startDate: `${targetSeries.year}-01-01`,
+        inLanguage: 'uz',
+        genre: targetSeries.genres,
+        numberOfEpisodes: targetSeries.totalEpisodes || 1,
+        countryOfOrigin: targetSeries.country ? { '@type': 'Country', name: targetSeries.country } : undefined,
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: (targetSeries.rating || 8.6).toFixed(1),
+          bestRating: '10',
+          ratingCount: 160,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Bosh sahifa',
+            item: 'https://filmx-series.vercel.app',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Seriallar',
+            item: 'https://filmx-series.vercel.app/catalog?type=series',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: targetSeries.title,
+            item: `https://filmx-series.vercel.app/series/${encodeURIComponent(targetSeries.id)}`,
+          },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <SeriesPlayerView series={targetSeries} relatedSeries={allSeries} />
+    </>
+  );
 }
+

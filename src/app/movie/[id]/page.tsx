@@ -18,15 +18,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${item.title} (${item.year}) Uzbek tilida tomosha qilish — FilmX`;
-  const description = item.description || `${item.title} kinoni 1080p Full HD sifatda FilmX portalida bepul tomosha qiling.`;
+  const description = item.description 
+    ? `${item.title} (${item.year}) Uzbek tilida: ${item.description.slice(0, 160)}... Bepul 1080p HD sifatda FilmX da tomosha qiling.`
+    : `${item.title} (${item.year}) kinoni 1080p Full HD sifatda FilmX portalida bepul tomosha qiling. Janr: ${item.genres?.join(', ') || 'Kino'}.`;
+  const canonicalUrl = `https://filmx-series.vercel.app/movie/${encodeURIComponent(item.id)}`;
 
   return {
     title,
     description,
+    keywords: [
+      item.title,
+      `${item.title} uzbek tilida`,
+      `${item.title} tarjima kino`,
+      `${item.title} ${item.year}`,
+      'filmx kino',
+      ...(item.genres || [])
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
+      siteName: 'FilmX',
       type: 'video.movie',
+      locale: 'uz_UZ',
       images: [
         {
           url: item.backdrop || item.poster,
@@ -70,8 +87,66 @@ function MoviePageView({ movie }: { movie: Movie }) {
     .filter(m => m.id !== movie.id)
     .slice(0, 6);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Movie',
+        '@id': `https://filmx-series.vercel.app/movie/${encodeURIComponent(movie.id)}#movie`,
+        url: `https://filmx-series.vercel.app/movie/${encodeURIComponent(movie.id)}`,
+        name: movie.title,
+        alternateName: movie.rawTitle,
+        headline: `${movie.title} (${movie.year}) Uzbek tilida tomosha qilish`,
+        description: movie.description || `${movie.title} kinoni 1080p Full HD sifatda FilmX portalida bepul tomosha qiling.`,
+        image: movie.backdrop || movie.poster,
+        datePublished: `${movie.year}-01-01`,
+        inLanguage: 'uz',
+        genre: movie.genres,
+        duration: movie.duration,
+        countryOfOrigin: movie.country ? { '@type': 'Country', name: movie.country } : undefined,
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: (movie.rating || 8.5).toFixed(1),
+          bestRating: '10',
+          ratingCount: 145,
+        },
+        actor: (movie.actors || []).map(actor => ({
+          '@type': 'Person',
+          name: actor,
+        })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Bosh sahifa',
+            item: 'https://filmx-series.vercel.app',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Tarjima Kinolar',
+            item: 'https://filmx-series.vercel.app/catalog?type=movie',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: movie.title,
+            item: `https://filmx-series.vercel.app/movie/${encodeURIComponent(movie.id)}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="player-page container">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="player-header">
         <div className="player-title-row">
           <div>

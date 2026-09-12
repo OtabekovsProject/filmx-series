@@ -46,8 +46,14 @@ export default function HomePage() {
       <HeroSlider items={featured.length > 0 ? featured : series.slice(0, 5)} />
 
       <div className="container">
+        {/* Semantic H1 for SEO */}
+        <h1 className="sr-only">
+          FilmX — O&apos;zbek tilidagi eng so&apos;nggi tarjima kinolar, premyeralar va yangi seriallar portali
+        </h1>
+
         {/* Continue Watching (client-side) */}
         <ContinueWatching />
+
 
         {/* Category Quick Filter Row */}
         <div style={{
