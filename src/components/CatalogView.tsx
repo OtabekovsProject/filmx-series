@@ -11,6 +11,8 @@ interface CatalogViewProps {
 
 const GENRES = [
   { label: 'Barchasi', value: 'all' },
+  { label: '🐱‍🏍 Multfilm & Anime', value: 'multfilm' },
+  { label: '🎭 Dorama', value: 'dorama' },
   { label: '💥 Jangari', value: 'jangari' },
   { label: '🚀 Fantastika', value: 'fantastika' },
   { label: '🎭 Drama', value: 'drama' },
@@ -18,7 +20,6 @@ const GENRES = [
   { label: '🗺️ Sarguzasht', value: 'sarguzasht' },
   { label: '😂 Komediya', value: 'komediya' },
   { label: '👻 Qo\'rqinchli', value: 'qo\'rqinchli' },
-  { label: '🐱‍🏍 Animatsiya', value: 'animatsiya' },
   { label: '🥋 Melodrama', value: 'melodrama' },
 ];
 
@@ -100,9 +101,22 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
       // Genre
       if (genreFilter !== 'all') {
         const lowerGenre = genreFilter.toLowerCase();
-        const genreMatch = item.genres?.some((g) => g.toLowerCase().includes(lowerGenre));
-        const titleMatch = item.title?.toLowerCase().includes(lowerGenre);
-        if (!genreMatch && !titleMatch) return false;
+        let matches = false;
+        if (lowerGenre === 'multfilm' || lowerGenre === 'animatsiya') {
+          matches = !!(item.genres?.some((g) => {
+            const lg = g.toLowerCase();
+            return lg.includes('mult') || lg.includes('anim') || lg.includes('anime');
+          }) || item.title.toLowerCase().includes('multfilm') || item.title.toLowerCase().includes('anime'));
+        } else if (lowerGenre === 'dorama') {
+          matches = !!(item.genres?.some((g) => g.toLowerCase().includes('dorama') || g.toLowerCase().includes('koreys')) ||
+                    item.country?.toLowerCase().includes('koreya') ||
+                    item.title.toLowerCase().includes('dorama'));
+        } else {
+          const genreMatch = item.genres?.some((g) => g.toLowerCase().includes(lowerGenre));
+          const titleMatch = item.title?.toLowerCase().includes(lowerGenre);
+          matches = !!(genreMatch || titleMatch);
+        }
+        if (!matches) return false;
       }
 
       // Country
@@ -194,7 +208,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.3)', color: '#ff7485', padding: '4px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, marginBottom: '12px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e50914', display: 'inline-block' }} />
-            918+ Asar • 1080p Full HD • O'zbek tilida
+            1,180+ Asar • 2,000+ Qism • 1080p Full HD • O'zbek tilida
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '8px' }}>
             FilmX To'liq Katalogi

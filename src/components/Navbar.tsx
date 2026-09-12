@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { label: 'Bosh sahifa', href: '/', exact: true },
   { label: 'Seriallar', href: '/catalog?type=series', match: 'series' },
   { label: 'Kinolar', href: '/catalog?type=movie', match: 'movie' },
+  { label: 'Multfilmlar', href: '/catalog?genre=multfilm', match: 'multfilm' },
+  { label: 'Dorama', href: '/catalog?genre=dorama', match: 'dorama' },
   { label: 'Katalog', href: '/catalog', exact: true },
   { label: 'Sevimlilar', href: '/favorites', exact: true },
 ];

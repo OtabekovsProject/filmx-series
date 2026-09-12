@@ -1,4 +1,4 @@
-import { getMovies, getSeries, getFeaturedMedia } from '@/lib/data';
+import { getMovies, getSeries, getFeaturedMedia, getMultfilms, getDoramas, getLatestPremieres } from '@/lib/data';
 import HeroSlider from '@/components/HeroSlider';
 import MovieCard from '@/components/MovieCard';
 import ContinueWatching from '@/components/ContinueWatching';
@@ -12,23 +12,26 @@ const ChevronRight = () => (
 
 const CATEGORIES = [
   { name: '🔥 Seriallar', href: '/catalog?type=series' },
+  { name: '🐱‍🏍 Multfilmlar', href: '/catalog?genre=multfilm' },
+  { name: '🎭 Dorama', href: '/catalog?genre=dorama' },
+  { name: '⚡ 2025-2026 Premyeralar', href: '/catalog?year=2025' },
   { name: '🎬 Tarjima Kinolar', href: '/catalog?type=movie' },
-  { name: '🌟 Hind', href: '/catalog?genre=hind' },
-  { name: '⚡ AQSH', href: '/catalog?genre=aqsh' },
-  { name: '🥋 Koreya', href: '/catalog?genre=koreya' },
   { name: '💥 Jangari', href: '/catalog?genre=jangari' },
   { name: '🎭 Drama', href: '/catalog?genre=drama' },
-  { name: '🔪 Triller', href: '/catalog?genre=triller' },
-  { name: '😂 Komediya', href: '/catalog?genre=komediya' },
   { name: '🚀 Fantastika', href: '/catalog?genre=fantastika' },
-  { name: '👻 Qo\'rqinchli', href: '/catalog?genre=qorqinchli' },
-  { name: '🐱‍🏍 Animatsiya', href: '/catalog?genre=animatsiya' },
+  { name: '😂 Komediya', href: '/catalog?genre=komediya' },
+  { name: '🔪 Triller', href: '/catalog?genre=triller' },
+  { name: '🌟 Hind', href: '/catalog?genre=hind' },
+  { name: '🥋 Koreya', href: '/catalog?genre=koreya' },
 ];
 
 export default function HomePage() {
   const movies = getMovies();
   const series = getSeries();
   const featured = getFeaturedMedia();
+  const multfilms = getMultfilms();
+  const doramas = getDoramas();
+  const latestPremieres = getLatestPremieres();
 
   const trendingSeries = series.slice(0, 10);
   const latestMovies = movies.slice(0, 12);
@@ -37,6 +40,9 @@ export default function HomePage() {
     .filter((v, i, a) => a.findIndex(x => x.id === v.id) === i)
     .slice(0, 10);
 
+  const topMultfilms = multfilms.slice(0, 8);
+  const topDoramas = doramas.slice(0, 8);
+  const topPremieres = latestPremieres.slice(0, 8);
   const hindMovies = movies.filter(m => m.country?.toLowerCase().includes('hind') || m.genres?.some(g => g.toLowerCase().includes('hind'))).slice(0, 6);
   const thrillers = [...movies, ...series].filter(m => m.genres?.some(g => g.toLowerCase().includes('triller'))).slice(0, 6);
 
@@ -48,12 +54,11 @@ export default function HomePage() {
       <div className="container">
         {/* Semantic H1 for SEO */}
         <h1 className="sr-only">
-          FilmX — O&apos;zbek tilidagi eng so&apos;nggi tarjima kinolar, premyeralar va yangi seriallar portali
+          FilmX — O&apos;zbek tilidagi eng so&apos;nggi tarjima kinolar, premyeralar, multfilmlar, doramalar va yangi seriallar portali
         </h1>
 
         {/* Continue Watching (client-side) */}
         <ContinueWatching />
-
 
         {/* Category Quick Filter Row */}
         <div className="quick-filters-row">
@@ -88,7 +93,70 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Section 2: Yangi Kinolar ── */}
+        {/* ── Section 2: Multfilmlar & Animatsiya ── */}
+        {topMultfilms.length > 0 && (
+          <section className="section">
+            <div className="section-header">
+              <div className="section-title-wrap">
+                <span className="section-indicator" style={{ background: 'linear-gradient(135deg, #f59e0b, #ec4899)' }} />
+                <h2 className="section-title">🐱‍🏍 Multfilmlar & Animatsiya — Yangi premyeralar</h2>
+              </div>
+              <Link href="/catalog?genre=multfilm" className="section-link">
+                <span>Barchasini ko&apos;rish ({multfilms.length})</span>
+                <ChevronRight />
+              </Link>
+            </div>
+            <div className="media-grid">
+              {topMultfilms.map((item) => (
+                <MovieCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Section 3: Doramalar & Sharq Seriallari ── */}
+        {topDoramas.length > 0 && (
+          <section className="section">
+            <div className="section-header">
+              <div className="section-title-wrap">
+                <span className="section-indicator" style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)' }} />
+                <h2 className="section-title">🎭 Dorama & Sharq Seriallari (O&apos;zbek tilida)</h2>
+              </div>
+              <Link href="/catalog?genre=dorama" className="section-link">
+                <span>Barchasini ko&apos;rish ({doramas.length})</span>
+                <ChevronRight />
+              </Link>
+            </div>
+            <div className="media-grid">
+              {topDoramas.map((item) => (
+                <MovieCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Section 4: 2024-2026 Premyeralar ── */}
+        {topPremieres.length > 0 && (
+          <section className="section">
+            <div className="section-header">
+              <div className="section-title-wrap">
+                <span className="section-indicator" style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }} />
+                <h2 className="section-title">⚡ 2024-2026 Yangi Premyeralar (Faqat Yangilar)</h2>
+              </div>
+              <Link href="/catalog?year=2025" className="section-link">
+                <span>Barcha premyeralar ({latestPremieres.length})</span>
+                <ChevronRight />
+              </Link>
+            </div>
+            <div className="media-grid">
+              {topPremieres.map((item) => (
+                <MovieCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Section 5: Yangi Kinolar ── */}
         <section className="section">
           <div className="section-header">
             <div className="section-title-wrap">
@@ -107,7 +175,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Section 3: Eng yuqori reytingli ── */}
+        {/* ── Section 6: Eng yuqori reytingli ── */}
         <section className="section">
           <div className="section-header">
             <div className="section-title-wrap">
@@ -126,7 +194,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Section 4: Hind Kinolari ── */}
+        {/* ── Section 7: Hind Kinolari ── */}
         {hindMovies.length > 0 && (
           <section className="section">
             <div className="section-header">
@@ -147,7 +215,7 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* ── Section 5: Thrillers ── */}
+        {/* ── Section 8: Thrillers ── */}
         {thrillers.length > 0 && (
           <section className="section">
             <div className="section-header">
@@ -189,16 +257,16 @@ export default function HomePage() {
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.12)', border: '1px solid rgba(229,9,20,0.3)', color: '#ff7485', padding: '5px 14px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '16px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e50914', display: 'inline-block', boxShadow: '0 0 8px #e50914' }} />
-                843 kino · 75 serial · 1080p FHD
+                1,050+ kino · 130+ serial · 2,000+ qism · 1080p FHD
               </div>
               <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(22px, 3vw, 36px)', fontWeight: 900, letterSpacing: '-0.025em', marginBottom: '10px', lineHeight: 1.2 }}>
                 O&apos;zbekcha tarjimada barcha{' '}
                 <span style={{ background: 'linear-gradient(135deg, #e50914, #8b5cf6, #00f2fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  918+ kino va serial
+                  1,180+ kino, serial va multfilm
                 </span>
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: 1.65, maxWidth: '500px' }}>
-                Reklamasiz, ro&apos;yxatdan o&apos;tmasdan, bepul. Hind, AQSH, Koreya, Xitoy, Turk va ko&apos;plab boshqa kinolar — hammasi 1080p Full HD sifatda!
+                Reklamasiz, ro&apos;yxatdan o&apos;tmasdan, bepul. Multfilmlar, Doramalar, Hind, AQSH, Koreya, Turkiya kinolari — 1080p Full HD va 4K sifatda!
               </p>
             </div>
             <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>

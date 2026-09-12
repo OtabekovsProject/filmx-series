@@ -302,3 +302,28 @@ export function getFeaturedMedia(): MediaItem[] {
   const all = getAllMedia();
   return all.filter(item => item.rating >= 8.5).slice(0, 10);
 }
+
+export function getMultfilms(): MediaItem[] {
+  const all = getAllMedia();
+  return all.filter(item => 
+    item.genres?.some(g => {
+      const lg = g.toLowerCase();
+      return lg.includes('mult') || lg.includes('anim');
+    })
+  ).sort((a, b) => b.year - a.year || b.rating - a.rating);
+}
+
+export function getDoramas(): MediaItem[] {
+  const all = getAllMedia();
+  return all.filter(item =>
+    item.genres?.some(g => g.toLowerCase().includes('dorama') || g.toLowerCase().includes('koreys')) ||
+    (item.type === 'series' && item.country?.toLowerCase().includes('koreya')) ||
+    item.title?.toLowerCase().includes('dorama')
+  ).sort((a, b) => b.year - a.year || b.rating - a.rating);
+}
+
+export function getLatestPremieres(): MediaItem[] {
+  const all = getAllMedia();
+  return all.filter(item => item.year >= 2024).sort((a, b) => b.year - a.year || b.rating - a.rating);
+}
+
