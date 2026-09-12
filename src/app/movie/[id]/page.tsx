@@ -83,9 +83,21 @@ export default async function MoviePage({ params }: PageProps) {
 }
 
 function MoviePageView({ movie }: { movie: Movie }) {
-  const relatedMovies = getMovies()
-    .filter(m => m.id !== movie.id)
-    .slice(0, 6);
+  const allMovies = getMovies().filter(m => m.id !== movie.id);
+  const matchingGenre = allMovies.filter(m => 
+    m.genres?.some(g => movie.genres?.includes(g))
+  );
+  const matchingCountry = allMovies.filter(m => 
+    m.country && movie.country && m.country.toLowerCase() === movie.country.toLowerCase()
+  );
+  
+  // Combine matching genre & country, falling back to highest rated
+  const relatedCandidates = [...matchingGenre, ...matchingCountry, ...allMovies];
+  const uniqueRelated = new Map<string, Movie>();
+  relatedCandidates.forEach(m => {
+    if (!uniqueRelated.has(m.id)) uniqueRelated.set(m.id, m);
+  });
+  const relatedMovies = Array.from(uniqueRelated.values()).slice(0, 6);
 
   const jsonLd = {
     '@context': 'https://schema.org',

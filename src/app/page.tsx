@@ -257,12 +257,12 @@ export default function HomePage() {
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.12)', border: '1px solid rgba(229,9,20,0.3)', color: '#ff7485', padding: '5px 14px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '16px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e50914', display: 'inline-block', boxShadow: '0 0 8px #e50914' }} />
-                1,050+ kino · 130+ serial · 2,000+ qism · 1080p FHD
+                1,170+ kino · 300+ serial · 5,000+ qism · 1080p FHD & 4K
               </div>
               <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(22px, 3vw, 36px)', fontWeight: 900, letterSpacing: '-0.025em', marginBottom: '10px', lineHeight: 1.2 }}>
                 O&apos;zbekcha tarjimada barcha{' '}
                 <span style={{ background: 'linear-gradient(135deg, #e50914, #8b5cf6, #00f2fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  1,180+ kino, serial va multfilm
+                  1,470+ kino, serial va multfilm
                 </span>
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: 1.65, maxWidth: '500px' }}>

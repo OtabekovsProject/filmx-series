@@ -333,6 +333,28 @@ export async function runEnhancedScraper(maxItemsToAdd = 500) {
     categoryPages.push(`${BASE_URL}/films/rusfilm/${i === 1 ? '' : `page/${i}/`}`);
   }
 
+  // 9. 2025 & 2024 Year Catalogs (Guaranteed new releases)
+  for (let i = 1; i <= 25; i++) {
+    categoryPages.push(`${BASE_URL}/year/2025/${i === 1 ? '' : `page/${i}/`}`);
+  }
+  for (let i = 1; i <= 30; i++) {
+    categoryPages.push(`${BASE_URL}/year/2024/${i === 1 ? '' : `page/${i}/`}`);
+  }
+  for (let i = 1; i <= 25; i++) {
+    categoryPages.push(`${BASE_URL}/year/2023/${i === 1 ? '' : `page/${i}/`}`);
+  }
+
+  // 10. More multfilms & anime
+  for (let i = 31; i <= 45; i++) {
+    categoryPages.push(`${BASE_URL}/films/multfilmlar_multiklar/page/${i}/`);
+    categoryPages.push(`${BASE_URL}/xfsearch/genre/%D0%BC%D1%83%D0%BB%D1%8C%D1%82%D1%84%D0%B8%D0%BB%D1%8C%D0%BC/page/${i}/`);
+  }
+
+  // 11. More serials
+  for (let i = 36; i <= 50; i++) {
+    categoryPages.push(`${BASE_URL}/films/serial/page/${i}/`);
+  }
+
   console.log(`[ENHANCED SCRAPER] Generated ${categoryPages.length} catalog page URLs across all genres.`);
   console.log(`[ENHANCED SCRAPER] Scanning catalog pages in parallel with 15 workers...`);
 
@@ -452,4 +474,4 @@ export async function runEnhancedScraper(maxItemsToAdd = 500) {
   }
 }
 
-runEnhancedScraper(450);
+runEnhancedScraper(900);

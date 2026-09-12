@@ -208,7 +208,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.3)', color: '#ff7485', padding: '4px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, marginBottom: '12px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e50914', display: 'inline-block' }} />
-            1,180+ Asar • 2,000+ Qism • 1080p Full HD • O'zbek tilida
+            1,470+ Asar • 5,000+ Qism • 1080p Full HD & 4K • O'zbek tilida
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '8px' }}>
             FilmX To'liq Katalogi

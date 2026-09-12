@@ -83,7 +83,19 @@ export default async function SeriesPage({ params }: PageProps) {
     targetSeries = item as Series;
   }
 
-  const allSeries = getSeries().filter(s => s.id !== targetSeries.id);
+  const candidates = getSeries().filter(s => s.id !== targetSeries.id);
+  const matchingGenre = candidates.filter(s => 
+    s.genres?.some(g => targetSeries.genres?.includes(g))
+  );
+  const matchingCountry = candidates.filter(s => 
+    s.country && targetSeries.country && s.country.toLowerCase() === targetSeries.country.toLowerCase()
+  );
+  const relatedCandidates = [...matchingGenre, ...matchingCountry, ...candidates];
+  const uniqueRelated = new Map<string, Series>();
+  relatedCandidates.forEach(s => {
+    if (!uniqueRelated.has(s.id)) uniqueRelated.set(s.id, s);
+  });
+  const allSeries = Array.from(uniqueRelated.values()).slice(0, 10);
 
   const jsonLd = {
     '@context': 'https://schema.org',
