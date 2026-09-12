@@ -70,11 +70,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className="header"
-        style={{
-          boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.4)' : 'none',
-          backdropFilter: scrolled ? 'blur(28px) saturate(200%)' : 'blur(20px) saturate(160%)',
-        }}
+        className={`header ${scrolled ? 'header-scrolled' : ''}`}
       >
         <div className="container header-inner">
           {/* Logo */}

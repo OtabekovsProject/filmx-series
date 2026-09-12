@@ -128,12 +128,18 @@ img {
   position: sticky;
   top: 0;
   z-index: 200;
-  background: rgba(7, 10, 18, 0.75);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(7, 10, 18, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
   box-shadow: 0 1px 0 rgba(255,255,255,0.04);
-  transition: var(--transition-normal);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.header.header-scrolled {
+  background: rgba(6, 9, 17, 0.96);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
 .header::before {
@@ -528,8 +534,6 @@ img {
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
-  will-change: transform;
-  transform: translateZ(0);
   border: 1.5px solid rgba(255, 255, 255, 0.12);
   animation: heroCardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -934,7 +938,11 @@ img {
 /* ═══════════════════════════════════════
    SECTIONS
    ═══════════════════════════════════════ */
-.section { margin-bottom: 64px; }
+.section { 
+  margin-bottom: 64px; 
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 450px;
+}
 
 .section-header {
   display: flex;
@@ -999,17 +1007,20 @@ img {
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-subtle);
-  backdrop-filter: blur(8px);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s, box-shadow 0.25s;
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: 200px 320px;
 }
 
-.media-card:hover {
-  transform: translateY(-7px) scale(1.018);
-  border-color: rgba(229,9,20,0.5);
-  box-shadow: 0 22px 40px -12px rgba(0,0,0,0.7), 0 0 30px -10px rgba(229,9,20,0.4), 0 0 20px -5px rgba(0,242,254,0.1);
+@media (hover: hover) {
+  .media-card:hover {
+    transform: translateY(-7px) scale(1.018);
+    border-color: rgba(229,9,20,0.5);
+    box-shadow: 0 22px 40px -12px rgba(0,0,0,0.7), 0 0 30px -10px rgba(229,9,20,0.4), 0 0 20px -5px rgba(0,242,254,0.1);
+  }
 }
 
 .poster-wrap {
@@ -1844,6 +1855,8 @@ img {
     max-width: 100%;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
     scrollbar-width: none;
   }
   .hero-pure-grid::-webkit-scrollbar {
@@ -1857,6 +1870,83 @@ img {
   .hero-wrapper { min-height: 70vh; }
   .hero-main-title { font-size: clamp(26px, 5vw, 40px); }
   .hero-description { font-size: 14px; }
+
+  /* ═══ ULTRA-SMOOTH MOBILE SCROLL OPTIMIZATIONS ═══ */
+  /* 1. Disable expensive GPU blur shaders on mobile to maintain 60-120 FPS */
+  .media-card,
+  .badge-hd,
+  .badge-type,
+  .card-rating,
+  .favorite-card-btn,
+  .favorite-list-btn,
+  .hero-live-badge,
+  .hero-pure-card,
+  .hero-card-slot-tag,
+  .hero-card-rating,
+  .hero-card-fav-btn,
+  .hero-card-play-hover,
+  .filter-btn,
+  .tag-badge,
+  .header,
+  .mobile-bottom-dock,
+  .media-list-item {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* 2. High performance solid backgrounds for mobile elements */
+  .badge-hd,
+  .badge-type,
+  .card-rating,
+  .hero-card-slot-tag,
+  .hero-card-rating {
+    background: rgba(6, 9, 18, 0.94) !important;
+  }
+
+  .hero-live-badge {
+    background: rgba(18, 22, 36, 0.95) !important;
+  }
+
+  .header {
+    background: rgba(6, 9, 17, 0.97) !important;
+  }
+
+  /* 3. Hero background: replace full-viewport blur with simple opacity */
+  .hero-bg {
+    filter: none !important;
+    opacity: 0.35 !important;
+    transform: none !important;
+  }
+
+  /* 4. Disable continuous frame-by-frame infinite pulse animations on mobile */
+  .hero-card-pulse,
+  .hero-live-dot {
+    animation: none !important;
+  }
+
+  /* 5. Disable hover transforms on mobile touches to avoid jitter */
+  .media-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: var(--border-subtle) !important;
+  }
+
+  .media-card:hover .poster-img {
+    transform: none !important;
+  }
+
+  .hero-pure-card:hover {
+    transform: none !important;
+  }
+
+  /* 6. Touch-action and momentum scrolling */
+  .quick-filters-row,
+  .hero-scroll-row,
+  .media-list-wrapper {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1950,7 +2040,6 @@ img {
 .hero-stack-card,
 .poster-wrap {
   contain: layout style;
-  will-change: transform;
 }
 
 .poster-img {
@@ -2177,11 +2266,9 @@ html {
     left: 0;
     right: 0;
     z-index: 990;
-    background: rgba(8, 12, 22, 0.88);
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    background: rgba(7, 10, 19, 0.97);
     border-top: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.65);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.65);
     padding: 6px 12px calc(6px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -2413,13 +2500,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.media-card,
-.movie-card,
-.hero-stack-card {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
+
 
 /* Mobile Header optimizations */
 @media (max-width: 640px) {

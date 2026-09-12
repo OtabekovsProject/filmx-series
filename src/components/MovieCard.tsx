@@ -221,13 +221,12 @@ export default function MovieCard({ item, variant = 'default' }: MovieCardProps)
           )}
           {watched && (
             <span style={{
-              background: 'rgba(16,185,129,0.85)',
+              background: 'rgba(16,185,129,0.92)',
               color: '#fff',
               fontSize: '10px',
               fontWeight: 800,
               padding: '3px 7px',
-              borderRadius: '4px',
-              backdropFilter: 'blur(6px)'
+              borderRadius: '4px'
             }}>
               ✓ Ko'rildi
             </span>
@@ -252,17 +251,16 @@ export default function MovieCard({ item, variant = 'default' }: MovieCardProps)
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: favorited ? 'rgba(229,9,20,0.92)' : 'rgba(7,10,18,0.75)',
-              border: `1px solid ${favorited ? '#ff385c' : 'rgba(255,255,255,0.18)'}`,
-              backdropFilter: 'blur(10px)',
+              background: favorited ? 'rgba(229,9,20,0.92)' : 'rgba(7,10,18,0.88)',
+              border: `1px solid ${favorited ? '#ff385c' : 'rgba(255,255,255,0.22)'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
               zIndex: 10,
-              transition: 'all 0.22s ease',
+              transition: 'background 0.2s ease, border-color 0.2s ease, transform 0.2s ease',
               color: '#fff',
-              boxShadow: favorited ? '0 0 18px rgba(229,9,20,0.65)' : '0 4px 12px rgba(0,0,0,0.6)',
+              boxShadow: favorited ? '0 0 14px rgba(229,9,20,0.6)' : '0 3px 10px rgba(0,0,0,0.5)',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24"

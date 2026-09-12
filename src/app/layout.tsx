@@ -167,23 +167,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     }
                     return origSet.apply(this, arguments);
                   };
-                  if (typeof MutationObserver !== 'undefined') {
-                    var observer = new MutationObserver(function(mutations) {
-                      for (var i = 0; i < mutations.length; i++) {
-                        var m = mutations[i];
-                        if (m.type === 'attributes') {
-                          var attr = m.attributeName;
-                          if (attr === 'bis_skin_checked' || attr === 'bis_register' || (typeof attr === 'string' && attr.indexOf('__processed_') === 0)) {
-                            m.target.removeAttribute(attr);
-                          }
-                        }
-                      }
-                    });
-                    observer.observe(document.documentElement, {
-                      attributes: true, subtree: true,
-                      attributeFilter: ['bis_skin_checked', 'bis_register']
-                    });
-                  }
                 } catch (e) {}
               })();
             `

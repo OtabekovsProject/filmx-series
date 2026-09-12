@@ -3,7 +3,7 @@
 import { MediaItem } from '@/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
 
 interface HeroSliderProps {
@@ -17,11 +17,13 @@ const CARD_NEON_THEMES = [
   { border: '#ffb703', glow: 'rgba(255, 183, 3, 0.65)', accent: '#ffd60a', label: 'YANGI' },
 ];
 
-const AUTO_ROTATE_MS = 2500; // Har 2.5 soniyada yangilanib turadi
+const AUTO_ROTATE_MS = 5000; // Har 5 soniyada (mobil uchun optimallashtirilgan)
 
 export default function HeroSlider({ items }: HeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isInView, setIsInView] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const router = useRouter();
 
@@ -29,35 +31,52 @@ export default function HeroSlider({ items }: HeroSliderProps) {
     setCurrentIndex(idx);
   }, []);
 
-  // Har soniyada/davriy ravishda uzluksiz yangilanib turish (hover bo'lmaganda)
+  // Faqat slider ekranda ko'ringanda va hover/touch bo'lmagandagina aylansin (mobil batareya va CPU tejash)
   useEffect(() => {
-    if (items.length <= 1 || isPaused) return;
+    if (!containerRef.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsInView(entry.isIntersecting);
+    }, { threshold: 0.1 });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (items.length <= 1 || isPaused || !isInView) return;
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % items.length);
     }, AUTO_ROTATE_MS);
     return () => clearInterval(interval);
-  }, [items.length, isPaused]);
-
-  if (!items || items.length === 0) return null;
+  }, [items.length, isPaused, isInView]);
 
   const current = items[currentIndex];
-  const watchHref = current.type === 'series' ? `/series/${current.id}` : `/movie/${current.id}`;
-  const backdrop = current.backdrop || current.poster;
+  const watchHref = current ? (current.type === 'series' ? `/series/${current.id}` : `/movie/${current.id}`) : '#';
+  const backdrop = current ? (current.backdrop || current.poster) : '';
 
-  // Har doim 4 ta mustaqil kino kartasi ko'rsatiladi va navbatma-navbat yangilanadi
-  const cardCount = Math.min(4, items.length);
-  const displayedCards = Array.from({ length: cardCount }, (_, offset) => {
-    const itemIndex = (currentIndex + offset) % items.length;
-    return {
-      item: items[itemIndex],
-      index: itemIndex,
-      slot: offset,
-      theme: CARD_NEON_THEMES[offset % CARD_NEON_THEMES.length],
-    };
-  });
+  // Kartalarni memoizatsiya qilish
+  const displayedCards = useMemo(() => {
+    if (!items || items.length === 0) return [];
+    const cardCount = Math.min(4, items.length);
+    return Array.from({ length: cardCount }, (_, offset) => {
+      const itemIndex = (currentIndex + offset) % items.length;
+      return {
+        item: items[itemIndex],
+        index: itemIndex,
+        slot: offset,
+        theme: CARD_NEON_THEMES[offset % CARD_NEON_THEMES.length],
+      };
+    });
+  }, [items, currentIndex]);
+
+  if (!items || items.length === 0 || !current) return null;
 
   return (
-    <div className="hero-wrapper">
+    <div
+      ref={containerRef}
+      className="hero-wrapper"
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
       {/* Animated Background */}
       <div
         className="hero-bg"
@@ -133,6 +152,8 @@ export default function HeroSlider({ items }: HeroSliderProps) {
           className="hero-right"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
         >
           <div className="hero-pure-grid">
             {displayedCards.map(({ item, index, slot, theme }) => {
