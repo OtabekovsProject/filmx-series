@@ -74,7 +74,8 @@ export default function Navbar() {
       >
         <div className="container header-inner">
           {/* Logo */}
-          <Link href="/" className="brand-logo">
+          <Link href="/" className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/icons/icon-192x192.png" alt="FilmX" style={{ width: 30, height: 30, borderRadius: 7, objectFit: 'cover', boxShadow: '0 0 14px rgba(229,9,20,0.5)' }} />
             <span style={{
               background: 'linear-gradient(135deg, #00f2fe 0%, #8b5cf6 50%, #e50914 100%)',
               WebkitBackgroundClip: 'text',
