@@ -9,42 +9,42 @@ interface LiveStatsShowcaseProps {
   totalEpisodes?: number;
 }
 
+function getVisitorId(): string {
+  if (typeof window === 'undefined') return 'v_ssr';
+  try {
+    let vid = localStorage.getItem('filmx_vid');
+    if (!vid) {
+      vid = 'v_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+      localStorage.setItem('filmx_vid', vid);
+    }
+    return vid;
+  } catch {
+    return 'v_client';
+  }
+}
+
 export default function LiveStatsShowcase({
   totalMovies,
   totalSeries,
   totalEpisodes = 5000
 }: LiveStatsShowcaseProps) {
-  // Compute initial realistic online viewers based on current hour
-  const getInitialOnline = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    if (hour >= 18 && hour <= 23) {
-      return 2800 + Math.floor(Math.random() * 400);
-    } else if (hour >= 12 && hour < 18) {
-      return 1900 + Math.floor(Math.random() * 300);
-    } else if (hour >= 7 && hour < 12) {
-      return 1300 + Math.floor(Math.random() * 200);
-    }
-    return 950 + Math.floor(Math.random() * 150);
-  };
-
-  const [onlineUsers, setOnlineUsers] = useState(getInitialOnline());
+  // Real active online users tracked by real IP (defaults to 1 for the current active visitor)
+  const [onlineUsers, setOnlineUsers] = useState<number>(1);
   const [animatedMovies, setAnimatedMovies] = useState(0);
   const [animatedSeries, setAnimatedSeries] = useState(0);
   const [animatedEpisodes, setAnimatedEpisodes] = useState(0);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isLiveActive, setIsLiveActive] = useState(false);
 
-  // Smooth Count-Up Animation on Mount
+  // Smooth Count-Up Animation on Mount for static counts
   useEffect(() => {
-    const duration = 1200; // ms
-    const steps = 30;
+    const duration = 1000; // ms
+    const steps = 25;
     const interval = duration / steps;
     let step = 0;
 
     const timer = setInterval(() => {
       step++;
       const progress = step / steps;
-      // Ease out cubic
       const ease = 1 - Math.pow(1 - progress, 3);
 
       setAnimatedMovies(Math.floor(ease * totalMovies));
@@ -62,17 +62,36 @@ export default function LiveStatsShowcase({
     return () => clearInterval(timer);
   }, [totalMovies, totalSeries, totalEpisodes]);
 
-  // Periodic Organic Fluctuation of Online Users (every 4-7 seconds)
+  // Real IP Heartbeat and Live Stats Fetcher
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsUpdating(true);
-      const delta = Math.floor(Math.random() * 19) - 9; // -9 to +9
-      setOnlineUsers(prev => Math.max(500, prev + delta));
+    const vid = getVisitorId();
 
-      setTimeout(() => setIsUpdating(false), 800);
-    }, 5500);
+    const pingServer = async () => {
+      try {
+        const res = await fetch(`/api/stats?vid=${encodeURIComponent(vid)}`, {
+          method: 'GET',
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data.onlineUsers === 'number') {
+            setOnlineUsers(data.onlineUsers);
+            setIsLiveActive(true);
+          }
+        }
+      } catch (err) {
+        // Fallback: at least 1 (the current user)
+        setOnlineUsers(prev => Math.max(1, prev));
+      }
+    };
 
-    return () => clearInterval(interval);
+    // Immediate ping on mount
+    pingServer();
+
+    // Ping every 25 seconds to refresh active IP status
+    const pingInterval = setInterval(pingServer, 25000);
+
+    return () => clearInterval(pingInterval);
   }, []);
 
   return (
@@ -89,14 +108,14 @@ export default function LiveStatsShowcase({
         flexWrap: 'wrap',
         gap: '12px',
         marginBottom: '16px',
-        padding: '10px 18px',
-        background: 'rgba(10, 15, 29, 0.75)',
-        border: '1px solid rgba(16, 185, 129, 0.3)',
-        borderRadius: '14px',
+        padding: '12px 20px',
+        background: 'rgba(10, 15, 29, 0.8)',
+        border: '1px solid rgba(16, 185, 129, 0.35)',
+        borderRadius: '16px',
         backdropFilter: 'blur(16px)',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           {/* Animated Pulsing Green Dot */}
           <div style={{ position: 'relative', width: '12px', height: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{
@@ -119,17 +138,27 @@ export default function LiveStatsShowcase({
           </div>
 
           <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0', letterSpacing: '0.2px' }}>
-            Real-Time Jonli Statistika:
+            Haqiqiy Real-Time Statistika:
           </span>
 
           <span style={{
             fontSize: '13px',
             color: '#34d399',
             fontWeight: 800,
-            transition: 'all 0.4s ease',
-            transform: isUpdating ? 'scale(1.05)' : 'scale(1)'
+            transition: 'all 0.3s ease'
           }}>
-            {onlineUsers.toLocaleString('uz-UZ')} nafar foydalanuvchi hozir onlayn tomosha qilmoqda
+            {onlineUsers} nafar foydalanuvchi hozir onlayn tomosha qilmoqda
+          </span>
+
+          <span style={{
+            fontSize: '11px',
+            color: 'var(--text-dim)',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid var(--border-subtle)',
+            padding: '2px 8px',
+            borderRadius: '999px'
+          }}>
+            IP manzillar orqali aniqlangan
           </span>
         </div>
 
@@ -150,7 +179,7 @@ export default function LiveStatsShowcase({
         gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
         gap: '16px'
       }}>
-        {/* Card 1: Online Users */}
+        {/* Card 1: Real-Time Active Users by IP */}
         <div className="stats-card" style={{
           background: 'linear-gradient(145deg, rgba(16, 185, 129, 0.08) 0%, rgba(7, 10, 18, 0.7) 100%)',
           border: '1px solid rgba(16, 185, 129, 0.25)',
@@ -174,7 +203,7 @@ export default function LiveStatsShowcase({
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-              Jonli Tomoshabinlar
+              Haqiqiy Onlayn IP&apos;lar
             </span>
             <span style={{ fontSize: '20px' }}>🟢</span>
           </div>
@@ -188,11 +217,11 @@ export default function LiveStatsShowcase({
             marginBottom: '6px',
             fontVariantNumeric: 'tabular-nums'
           }}>
-            {onlineUsers.toLocaleString('uz-UZ')}
+            {onlineUsers}
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
-            Hozir platformada faol kino va serial tomosha qilmoqda
+            Hozirgi paytda saytga ulangan faol foydalanuvchilar (Real IP)
           </p>
         </div>
 
