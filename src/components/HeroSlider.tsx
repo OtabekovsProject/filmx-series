@@ -24,12 +24,42 @@ export default function HeroSlider({ items }: HeroSliderProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [isInView, setIsInView] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const router = useRouter();
 
   const goTo = useCallback((idx: number) => {
     setCurrentIndex(idx);
   }, []);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true);
+    touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const diffX = touchStartXRef.current - endX;
+    const diffY = touchStartYRef.current - endY;
+
+    // Horizontal swipe threshold > 40px and dominant over vertical scroll
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 0) {
+        // Swiped left -> Next slide
+        setCurrentIndex(prev => (prev + 1) % items.length);
+      } else {
+        // Swiped right -> Prev slide
+        setCurrentIndex(prev => (prev > 0 ? prev - 1 : items.length - 1));
+      }
+    }
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+  };
 
   // Faqat slider ekranda ko'ringanda va hover/touch bo'lmagandagina aylansin (mobil batareya va CPU tejash)
   useEffect(() => {
@@ -88,8 +118,8 @@ export default function HeroSlider({ items }: HeroSliderProps) {
     <div
       ref={containerRef}
       className="hero-wrapper"
-      onTouchStart={() => setIsPaused(true)}
-      onTouchEnd={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       tabIndex={0}
       aria-label="Premyeralar slayderi"
     >
@@ -236,7 +266,7 @@ export default function HeroSlider({ items }: HeroSliderProps) {
                     <img
                       src={item.poster}
                       alt={item.title}
-                      loading="lazy"
+                      loading={isActive ? "eager" : "lazy"}
                       decoding="async"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =

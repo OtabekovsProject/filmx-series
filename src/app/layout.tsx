@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     default: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
     template: '%s | FilmX'
   },
-  description: 'FilmX — 1,470+ dan ortiq eng so\'nggi tarjima kinolar, ko\'p qismli premyera seriallar, multfilmlar, doramalar, hind va jahon filmlarini 1080p Full HD va 4K sifatda bepul online tomosha qiling.',
+  description: 'FilmX — 1,590+ dan ortiq eng so\'nggi tarjima kinolar, ko\'p qismli premyera seriallar, multfilmlar, doramalar, hind va jahon filmlarini 1080p Full HD va 4K sifatda bepul online tomosha qiling.',
   keywords: [
     'FilmX',
     'filmx series',
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     url: 'https://filmx-series.vercel.app',
     siteName: 'FilmX',
     title: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
-    description: '1,470+ dan ortiq premyera kinolar, ko\'p qismli seriallar va multfilmlarni 1080p Full HD va 4K sifatda bepul tomosha qiling.',
+    description: '1,590+ dan ortiq premyera kinolar, ko\'p qismli seriallar va multfilmlarni 1080p Full HD va 4K sifatda bepul tomosha qiling.',
     images: [
       {
         url: '/icons/icon-512x512.png',
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'FilmX — Kinolar va Seriallar Portali (HD)',
-    description: '1,470+ premyera kinolar va seriallarni 1080p Full HD va 4K sifatda bepul tomosha qiling.',
+    description: '1,590+ premyera kinolar va seriallarni 1080p Full HD va 4K sifatda bepul tomosha qiling.',
     images: ['/icons/icon-512x512.png'],
   },
   robots: {
@@ -116,7 +116,7 @@ const jsonLdWebsite = {
       url: 'https://filmx-series.vercel.app',
       name: 'FilmX',
       alternateName: ['FilmX Series', 'FilmX Uzbek', 'Filmx-Series'],
-      description: '1,470+ premyera kinolar va seriallarni 1080p Full HD va 4K sifatda bepul online tomosha qiling.',
+      description: '1,590+ premyera kinolar va seriallarni 1080p Full HD va 4K sifatda bepul online tomosha qiling.',
       inLanguage: 'uz-UZ',
       potentialAction: {
         '@type': 'SearchAction',

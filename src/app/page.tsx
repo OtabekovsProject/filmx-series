@@ -37,6 +37,7 @@ export default function HomePage() {
   const doramas = getDoramas();
   const latestPremieres = getLatestPremieres();
   const newlyAdded = getNewlyAddedMedia();
+  const totalEpisodes = series.reduce((sum, s) => sum + (s.totalEpisodes || (s.seasons ? s.seasons.reduce((acc, sn) => acc + (sn.episodes?.length || 0), 0) : 0) || 0), 0);
 
   const trendingSeries = series.slice(0, 10);
   const latestMovies = movies.slice(0, 12);
@@ -66,6 +67,7 @@ export default function HomePage() {
         <SiteIntroSection
           totalMovies={movies.length}
           totalSeries={series.length}
+          totalEpisodes={totalEpisodes}
         />
 
         {/* Continue Watching (client-side) */}

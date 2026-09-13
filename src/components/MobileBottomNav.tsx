@@ -11,18 +11,27 @@ export default function MobileBottomNav() {
   const { favoritesCount, isLoaded } = useFavorites();
   const { canInstall, promptInstall } = usePwaInstall();
   const [mounted, setMounted] = useState(false);
+  const [searchString, setSearchString] = useState('');
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const updateSearch = () => {
+      if (typeof window !== 'undefined') {
+        setSearchString(window.location.search);
+      }
+    };
+    updateSearch();
+    window.addEventListener('popstate', updateSearch);
+    return () => window.removeEventListener('popstate', updateSearch);
+  }, [pathname]);
 
   const handleOpenSearch = () => {
     window.dispatchEvent(new CustomEvent('filmx_open_search'));
   };
 
   const isHome = mounted && pathname === '/';
-  const isSeries = mounted && pathname === '/catalog' && typeof window !== 'undefined' && window.location.search.includes('type=series');
-  const isMovies = mounted && pathname === '/catalog' && typeof window !== 'undefined' && window.location.search.includes('type=movie');
+  const isSeries = mounted && pathname === '/catalog' && searchString.includes('type=series');
+  const isMovies = mounted && pathname === '/catalog' && searchString.includes('type=movie');
   const isFavorites = mounted && pathname === '/favorites';
 
   return (

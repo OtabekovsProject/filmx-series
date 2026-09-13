@@ -75,6 +75,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
 }
 
 body {
@@ -2506,8 +2507,12 @@ body {
     height: 60px;
   }
 
+  .header-actions {
+    gap: 8px;
+  }
+
   .header-actions .search-trigger-btn {
-    padding: 7px 12px;
+    padding: 7px 11px;
     font-size: 12px;
   }
 
@@ -2517,6 +2522,15 @@ body {
 
   .brand-logo {
     font-size: 22px;
+  }
+
+  .android-apk-header-btn span {
+    display: none;
+  }
+
+  .android-apk-header-btn {
+    padding: 7px 10px !important;
+    gap: 0 !important;
   }
 
   .header-fav-btn {
@@ -2529,6 +2543,31 @@ body {
 
   .pwa-install-header-btn {
     padding: 7px 9px;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-logo {
+    font-size: 19px !important;
+    gap: 6px !important;
+  }
+
+  .brand-logo img {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .header-actions {
+    gap: 5px;
+  }
+
+  .header-actions .search-trigger-btn {
+    padding: 6px 9px;
+  }
+
+  .header-inner {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 }
 
@@ -3375,5 +3414,129 @@ body {
   color: #fff;
 }
 
+/* ══════════════════════════════════════════════════════════
+   MOBILE CATALOG HORIZONTAL GENRE SCROLL
+   ══════════════════════════════════════════════════════════ */
+.catalog-genres-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
 
+.catalog-genres-scroll::-webkit-scrollbar {
+  display: none;
+}
 
+.catalog-genres-scroll .filter-btn {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE SEARCH MODAL FULLSCREEN / TOP-DOCKED
+   ══════════════════════════════════════════════════════════ */
+.search-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(5, 7, 15, 0.86);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 20px 40px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@media (max-width: 640px) {
+  .search-modal-backdrop {
+    padding: 10px 8px 10px !important;
+    align-items: stretch !important;
+  }
+
+  .search-modal-box {
+    max-height: calc(100vh - 20px) !important;
+    border-radius: 18px !important;
+  }
+
+  .search-modal-results {
+    max-height: calc(100vh - 160px) !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   VIDEO PLAYER DOUBLE-TAP RIPPLE HUD & TOUCH GESTURES
+   ══════════════════════════════════════════════════════════ */
+.player-double-tap-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.player-double-tap-zone.left {
+  left: 0;
+}
+
+.player-double-tap-zone.right {
+  right: 0;
+}
+
+.player-seek-ripple {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: 0 0 24px rgba(229, 9, 20, 0.6);
+  animation: ripplePop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes ripplePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   OFFSCREEN SECTIONS ACCELERATION & SMOOTH SCROLLING
+   ══════════════════════════════════════════════════════════ */
+.section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 480px;
+}
+
+.site-intro-section,
+.android-app-showcase-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 400px;
+}

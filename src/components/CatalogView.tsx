@@ -205,19 +205,19 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
   };
 
   return (
-    <div className="container" style={{ padding: '40px 24px 80px' }}>
+    <div className="container" style={{ padding: 'clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px) 80px' }}>
       {/* Page Header */}
       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.3)', color: '#ff7485', padding: '4px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, marginBottom: '12px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e50914', display: 'inline-block' }} />
-            1,470+ Asar • 5,000+ Qism • 1080p Full HD & 4K • O'zbek tilida
+            {initialItems.length}+ Asar • 5,600+ Qism • 1080p Full HD &amp; 4K • O&apos;zbek tilida
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '8px' }}>
-            FilmX To'liq Katalogi
+            FilmX To&apos;liq Katalogi
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '15px', maxWidth: '650px' }}>
-            Barcha saralangan tarjima kinolar, premyeralar va to'liq qismli seriallar to'plami. Istalgan janr, davlat yoki yil bo'yicha saralang.
+            Barcha saralangan tarjima kinolar, premyeralar va to&apos;liq qismli seriallar to&apos;plami. Istalgan janr, davlat yoki yil bo&apos;yicha saralang.
           </p>
         </div>
 
@@ -289,7 +289,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
         background: 'var(--bg-card)',
         border: '1px solid var(--border-glass)',
         borderRadius: 'var(--radius-lg)',
-        padding: '24px',
+        padding: 'clamp(14px, 3vw, 24px)',
         marginBottom: '28px',
         backdropFilter: 'blur(20px)',
         display: 'flex',
@@ -412,7 +412,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
         {/* Row 3: Genres */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '13px', color: 'var(--text-dim)', fontWeight: 600, minWidth: '60px', marginTop: '6px' }}>Janr:</span>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
+          <div className="catalog-genres-scroll" style={{ flex: 1, minWidth: '240px' }}>
             {GENRES.map((g) => (
               <button
                 key={g.value}

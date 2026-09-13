@@ -20,7 +20,7 @@ export default function AndroidAppShowcase() {
       style={{
         position: 'relative',
         margin: '40px 0 50px',
-        padding: '48px 32px',
+        padding: 'clamp(24px, 4vw, 48px) clamp(16px, 3vw, 32px)',
         borderRadius: '28px',
         background: 'radial-gradient(ellipse 90% 60% at 50% -10%, rgba(61, 220, 132, 0.18), rgba(7, 10, 18, 0.96))',
         border: '1px solid rgba(61, 220, 132, 0.28)',
@@ -115,7 +115,7 @@ export default function AndroidAppShowcase() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
             gap: '18px',
             marginBottom: '36px',
           }}

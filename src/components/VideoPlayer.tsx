@@ -52,6 +52,10 @@ export default function VideoPlayer({
   const [sleepTimerMinutes, setSleepTimerMinutes] = useState<number | null>(null);
   const [sleepTimerSecondsLeft, setSleepTimerSecondsLeft] = useState<number | null>(null);
 
+  // Mobile touch double-tap state
+  const [doubleTapFeedback, setDoubleTapFeedback] = useState<{ side: 'left' | 'right'; id: number } | null>(null);
+  const lastTapRef = useRef<{ time: number; x: number } | null>(null);
+
   const watched = mediaItem ? isWatched(mediaItem.id) : false;
 
   const showHud = (text: string, side: 'left' | 'right' | 'center' = 'center') => {
@@ -328,9 +332,31 @@ export default function VideoPlayer({
     showToast('✓ Ko\'rilgan deb belgilandi!');
   };
 
-  // Video container click handler for double-click skip
+  const toggleFullscreen = () => {
+    const el = containerRef.current as any;
+    const vid = videoRef.current as any;
+    if (!el && !vid) return;
+
+    if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {});
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (vid.webkitEnterFullscreen) {
+        // iOS Safari native fullscreen on video element
+        vid.webkitEnterFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
+    }
+  };
+
+  // Video container click handler for double-click skip (Desktop)
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only handle double click
     if (e.detail === 2) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -340,12 +366,36 @@ export default function VideoPlayer({
       } else if (x > width * 0.65) {
         skipTime(10, 'right');
       } else {
-        if (!document.fullscreenElement) {
-          containerRef.current?.requestFullscreen?.();
-        } else {
-          document.exitFullscreen?.();
-        }
+        toggleFullscreen();
       }
+    }
+  };
+
+  // Mobile Touch Double-Tap Handler (10s back / 10s forward with HUD animation)
+  const handleTouchTap = (e: React.TouchEvent<HTMLDivElement>) => {
+    const now = Date.now();
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const width = rect.width;
+
+    if (lastTapRef.current && (now - lastTapRef.current.time < 320)) {
+      // It's a double tap
+      if (x < width * 0.4) {
+        skipTime(-10, 'left');
+        setDoubleTapFeedback({ side: 'left', id: now });
+        setTimeout(() => setDoubleTapFeedback(null), 650);
+      } else if (x > width * 0.6) {
+        skipTime(10, 'right');
+        setDoubleTapFeedback({ side: 'right', id: now });
+        setTimeout(() => setDoubleTapFeedback(null), 650);
+      } else {
+        toggleFullscreen();
+      }
+      lastTapRef.current = null;
+    } else {
+      lastTapRef.current = { time: now, x };
     }
   };
 
@@ -431,6 +481,7 @@ export default function VideoPlayer({
         <div
           ref={containerRef}
           onClick={handleContainerClick}
+          onTouchEnd={handleTouchTap}
           style={{
             position: 'relative',
             borderRadius: 'var(--radius-lg)',
@@ -445,6 +496,23 @@ export default function VideoPlayer({
             cursor: 'pointer'
           }}
         >
+          {/* Double-tap ripple overlays */}
+          {doubleTapFeedback?.side === 'left' && (
+            <div className="player-double-tap-zone left">
+              <div className="player-seek-ripple">
+                <span style={{ fontSize: '20px' }}>⏪</span>
+                <span>-10s</span>
+              </div>
+            </div>
+          )}
+          {doubleTapFeedback?.side === 'right' && (
+            <div className="player-double-tap-zone right">
+              <div className="player-seek-ripple">
+                <span style={{ fontSize: '20px' }}>⏩</span>
+                <span>+10s</span>
+              </div>
+            </div>
+          )}
           <video
             ref={videoRef}
             src={currentSrc}
@@ -712,6 +780,15 @@ export default function VideoPlayer({
                   {watched ? '✓ Ko\'rildi' : '○ Ko\'rildi deb belgilash'}
                 </button>
               )}
+
+              {/* Fullscreen Toggle Button */}
+              <button
+                onClick={toggleFullscreen}
+                className="player-tool-btn"
+                title="To'liq ekran rejimi (F)"
+              >
+                ⛶ To&apos;liq ekran
+              </button>
 
               {/* Theater Mode Toggle */}
               <button

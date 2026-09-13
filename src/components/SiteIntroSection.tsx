@@ -6,14 +6,15 @@ import LiveStatsShowcase from '@/components/LiveStatsShowcase';
 interface SiteIntroSectionProps {
   totalMovies: number;
   totalSeries: number;
+  totalEpisodes?: number;
 }
 
-export default function SiteIntroSection({ totalMovies, totalSeries }: SiteIntroSectionProps) {
+export default function SiteIntroSection({ totalMovies, totalSeries, totalEpisodes = 5600 }: SiteIntroSectionProps) {
   return (
     <section className="site-intro-section" style={{
       position: 'relative',
       margin: '20px 0 40px',
-      padding: '40px 32px',
+      padding: 'clamp(24px, 4vw, 40px) clamp(16px, 3vw, 32px)',
       background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(229, 9, 20, 0.15), rgba(7, 10, 18, 0.95))',
       borderRadius: '24px',
       border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -86,7 +87,7 @@ export default function SiteIntroSection({ totalMovies, totalSeries }: SiteIntro
           maxWidth: '740px',
           margin: '0 auto 28px'
         }}>
-          FilmX platformasida <strong style={{ color: '#fff' }}>1,480+ dan ortiq</strong> jahon durdonalari, yangi seriallar,
+          FilmX platformasida <strong style={{ color: '#fff' }}>{totalMovies + totalSeries}+ dan ortiq</strong> jahon durdonalari, yangi seriallar,
           koreys doramalari va multfilmlarni professional o&apos;zbek tilidagi tarjimada,
           <strong style={{ color: '#34d399' }}> Tas-ix cheksiz tezlikda</strong> va hech qanday reklamasiz 1080p Full HD sifatda tomosha qiling.
         </p>
@@ -161,7 +162,7 @@ export default function SiteIntroSection({ totalMovies, totalSeries }: SiteIntro
       <LiveStatsShowcase
         totalMovies={totalMovies}
         totalSeries={totalSeries}
-        totalEpisodes={5000}
+        totalEpisodes={totalEpisodes}
       />
     </section>
   );

@@ -118,22 +118,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: 'rgba(5, 7, 15, 0.82)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        padding: '80px 20px 40px',
-        animation: 'fadeIn 0.2s ease-out'
-      }}
+      className="search-modal-backdrop"
       onClick={onClose}
     >
       <div
+        className="search-modal-box"
         style={{
           width: '100%',
           maxWidth: '680px',
@@ -151,9 +140,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          padding: '18px 24px',
+          padding: '16px 20px',
           borderBottom: '1px solid var(--border-subtle)',
-          gap: '14px'
+          gap: '12px'
         }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" strokeWidth="2.5">
             <circle cx="11" cy="11" r="8"></circle>
@@ -162,7 +151,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="1,470+ ta kino yoki serial nomini qidiring..."
+            placeholder="1,590+ ta kino yoki serial nomini qidiring..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             style={{
@@ -171,21 +160,52 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               border: 'none',
               outline: 'none',
               color: '#fff',
-              fontSize: '18px',
+              fontSize: '17px',
               fontWeight: 600,
               fontFamily: 'inherit'
             }}
           />
-          <span style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            color: 'var(--text-muted)',
-            fontSize: '11px',
-            fontWeight: 700,
-            padding: '4px 8px',
-            borderRadius: '6px'
-          }}>
-            ESC
-          </span>
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: 'none',
+                color: 'var(--text-muted)',
+                fontSize: '14px',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}
+              title="Tozalash"
+            >
+              ✕
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              color: 'var(--text-muted)',
+              fontSize: '12px',
+              fontWeight: 700,
+              padding: '5px 10px',
+              borderRadius: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              cursor: 'pointer',
+              flexShrink: 0
+            }}
+            title="Yopish (ESC)"
+          >
+            ✕ Yopish
+          </button>
         </div>
 
         {/* Quick Search Suggestions */}
@@ -210,7 +230,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
 
         {/* Results List */}
-        <div style={{ maxHeight: '440px', overflowY: 'auto', padding: '12px' }}>
+        <div className="search-modal-results" style={{ maxHeight: '440px', overflowY: 'auto', padding: '12px' }}>
           {results.length > 0 ? (
             results.map((item, idx) => {
               const isSelected = idx === selectedIndex;
