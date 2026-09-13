@@ -1,7 +1,7 @@
 {
   "name": "FilmX — Milliy va Xorijiy Kinolar",
   "short_name": "FilmX",
-  "description": "918+ ta kino va seriallar o'zbek tilida Full HD sifatda bepul va tezkor tomosha qiling",
+  "description": "1,470+ ta kino, serial, multfilm va doramalar o'zbek tilida Full HD sifatda bepul va tezkor tomosha qiling",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -47,6 +47,20 @@
       "short_name": "Kinolar",
       "description": "Eng so'nggi tarjima kinolar",
       "url": "/catalog?type=movie",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Doramalar",
+      "short_name": "Doramalar",
+      "description": "Koreys va osiyo doramalari",
+      "url": "/catalog?genre=Dorama",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Multfilmlar",
+      "short_name": "Multfilmlar",
+      "description": "Qiziqarli multfilmlar va animelar",
+      "url": "/catalog?genre=Multfilm",
       "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {

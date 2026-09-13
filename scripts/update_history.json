@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-09-13T14:05:57.398Z",
+  "durationSeconds": 29,
+  "mode": "standard",
+  "scannedPages": 81,
+  "discoveredLinks": 670,
+  "skippedExisting": 546,
+  "candidatesFound": 124,
+  "newMoviesAdded": 1,
+  "newSeriesAdded": 1,
+  "totalMovies": 1179,
+  "totalSeries": 309,
+  "status": "SUCCESS"
+}

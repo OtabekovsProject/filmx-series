@@ -327,3 +327,16 @@ export function getLatestPremieres(): MediaItem[] {
   return all.filter(item => item.year >= 2024).sort((a, b) => b.year - a.year || b.rating - a.rating);
 }
 
+export function getNewlyAddedMedia(): MediaItem[] {
+  const all = getAllMedia();
+  return all
+    .filter(item => (item as any).addedAt || item.year >= 2025)
+    .sort((a, b) => {
+      const dateA = (a as any).addedAt ? new Date((a as any).addedAt).getTime() : 0;
+      const dateB = (b as any).addedAt ? new Date((b as any).addedAt).getTime() : 0;
+      if (dateB !== dateA) return dateB - dateA;
+      return (b.year - a.year) || (b.rating - a.rating);
+    })
+    .slice(0, 12);
+}
+

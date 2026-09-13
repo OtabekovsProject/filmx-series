@@ -161,7 +161,10 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
 
     // Sorting
     return [...result].sort((a, b) => {
-      if (sortBy === 'newest') {
+      if (sortBy === 'added' || sortBy === 'newest') {
+        const dateA = (a as any).addedAt ? new Date((a as any).addedAt).getTime() : 0;
+        const dateB = (b as any).addedAt ? new Date((b as any).addedAt).getTime() : 0;
+        if (dateB !== dateA) return dateB - dateA;
         return (b.year - a.year) || (b.rating - a.rating);
       }
       if (sortBy === 'oldest') {
@@ -377,11 +380,11 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
                   cursor: 'pointer'
                 }}
               >
-                <option value="newest">Eng yangilari (Yil bo'yicha)</option>
-                <option value="rating">Eng yuqori reyting (IMDb/Kino)</option>
-                <option value="episodes">Ko'p qismlilar (Seriallar)</option>
-                <option value="alpha">Alifbo bo'yicha (A-Z)</option>
-                <option value="oldest">Klassika (Eng eskilari)</option>
+                <option value="newest">🔥 Yangi qo&apos;shilganlar &amp; Yil</option>
+                <option value="rating">⭐ Eng yuqori reyting (IMDb/Kino)</option>
+                <option value="episodes">📺 Ko&apos;p qismlilar (Seriallar)</option>
+                <option value="alpha">🔤 Alifbo bo&apos;yicha (A-Z)</option>
+                <option value="oldest">🕰️ Klassika (Eng eskilari)</option>
               </select>
             </div>
           </div>
@@ -528,6 +531,59 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
           )}
         </div>
       </div>
+
+      {/* Active Filter Chips Bar */}
+      {hasActiveFilters && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          flexWrap: 'wrap',
+          marginBottom: '24px',
+          padding: '12px 18px',
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-md)'
+        }}>
+          <span style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 600 }}>Tanlangan filtrlar:</span>
+          {query && (
+            <span style={{ background: 'rgba(229, 9, 20, 0.2)', border: '1px solid rgba(229, 9, 20, 0.4)', color: '#fff', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              Qidiruv: &ldquo;{query}&rdquo;
+              <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', color: '#ff7485', cursor: 'pointer', padding: 0, fontWeight: 700 }}>✕</button>
+            </span>
+          )}
+          {typeFilter !== 'all' && (
+            <span style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid rgba(59, 130, 246, 0.4)', color: '#93c5fd', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              Tur: {typeFilter === 'movie' ? 'Kinolar' : 'Seriallar'}
+              <button onClick={() => setTypeFilter('all')} style={{ background: 'none', border: 'none', color: '#93c5fd', cursor: 'pointer', padding: 0, fontWeight: 700 }}>✕</button>
+            </span>
+          )}
+          {genreFilter !== 'all' && (
+            <span style={{ background: 'rgba(168, 85, 247, 0.2)', border: '1px solid rgba(168, 85, 247, 0.4)', color: '#d8b4fe', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              Janr: {genreFilter}
+              <button onClick={() => setGenreFilter('all')} style={{ background: 'none', border: 'none', color: '#d8b4fe', cursor: 'pointer', padding: 0, fontWeight: 700 }}>✕</button>
+            </span>
+          )}
+          {countryFilter !== 'all' && (
+            <span style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#6ee7b7', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              Davlat: {countryFilter}
+              <button onClick={() => setCountryFilter('all')} style={{ background: 'none', border: 'none', color: '#6ee7b7', cursor: 'pointer', padding: 0, fontWeight: 700 }}>✕</button>
+            </span>
+          )}
+          {yearFilter !== 'all' && (
+            <span style={{ background: 'rgba(245, 158, 11, 0.2)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              Yil: {yearFilter}
+              <button onClick={() => setYearFilter('all')} style={{ background: 'none', border: 'none', color: '#fcd34d', cursor: 'pointer', padding: 0, fontWeight: 700 }}>✕</button>
+            </span>
+          )}
+          {ratingFilter !== '0' && (
+            <span style={{ background: 'rgba(234, 179, 8, 0.2)', border: '1px solid rgba(234, 179, 8, 0.4)', color: '#fef08a', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              Reyting: {ratingFilter}+
+              <button onClick={() => setRatingFilter('0')} style={{ background: 'none', border: 'none', color: '#fef08a', cursor: 'pointer', padding: 0, fontWeight: 700 }}>✕</button>
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Grid or List Display */}
       {filteredItems.length > 0 ? (

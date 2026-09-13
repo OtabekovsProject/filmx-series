@@ -42,6 +42,7 @@ export default function VideoPlayer({
   const [savedResumeTime, setSavedResumeTime] = useState<number | null>(null);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [autoNext, setAutoNext] = useState(true);
 
   // Skip & Volume On-screen HUD state
   const [hudNotice, setHudNotice] = useState<{ text: string; side: 'left' | 'right' | 'center' } | null>(null);
@@ -82,6 +83,10 @@ export default function VideoPlayer({
           setPlaybackSpeed(s);
         }
       }
+      const savedAuto = localStorage.getItem('filmx_auto_next');
+      if (savedAuto !== null) {
+        setAutoNext(savedAuto === 'true');
+      }
     } catch {}
   }, []);
 
@@ -100,12 +105,20 @@ export default function VideoPlayer({
   const handleResumePlayback = () => {
     if (videoRef.current && savedResumeTime) {
       videoRef.current.currentTime = savedResumeTime;
-      videoRef.current.play().catch(() => {});
-      const mins = Math.floor(savedResumeTime / 60);
-      const secs = Math.floor(savedResumeTime % 60);
-      showToast(`▶ Oxirgi to'xtagan joy: ${mins}:${secs < 10 ? '0' : ''}${secs} dan davom etildi`);
+      videoRef.current.play();
+      setShowResumeBanner(false);
+      showToast(`Playback davom ettirildi: ${formatTime(savedResumeTime)}`);
     }
+  };
+
+  const handleDismissResume = () => {
     setShowResumeBanner(false);
+  };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
   useEffect(() => {
@@ -117,7 +130,7 @@ export default function VideoPlayer({
     }
   }, [src]);
 
-  // Next episode countdown
+  // Countdown timer for next episode auto-play
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (showNextOverlay && countdown > 0) {
@@ -129,23 +142,21 @@ export default function VideoPlayer({
     return () => clearTimeout(timer);
   }, [showNextOverlay, countdown, onEnded]);
 
-  // Sleep Timer countdown
+  // Sleep timer interval
   useEffect(() => {
-    if (sleepTimerSecondsLeft === null) return;
-    if (sleepTimerSecondsLeft <= 0) {
+    let interval: NodeJS.Timeout;
+    if (sleepTimerSecondsLeft !== null && sleepTimerSecondsLeft > 0) {
+      interval = setInterval(() => {
+        setSleepTimerSecondsLeft((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    } else if (sleepTimerSecondsLeft === 0) {
       if (videoRef.current) {
         videoRef.current.pause();
       }
       setSleepTimerMinutes(null);
       setSleepTimerSecondsLeft(null);
-      showToast('🌙 Avto-taymer videoni to\'xtatdi. Xayrli tun!');
-      return;
+      showToast('⏰ Taymer tugadi: Video to\'xtatildi');
     }
-
-    const interval = setInterval(() => {
-      setSleepTimerSecondsLeft((prev) => (prev !== null ? prev - 1 : null));
-    }, 1000);
-
     return () => clearInterval(interval);
   }, [sleepTimerSecondsLeft]);
 
@@ -261,9 +272,8 @@ export default function VideoPlayer({
           try { localStorage.setItem('filmx_player_volume', newVol.toString()); } catch {}
           showHud(`🔉 Ovoz: ${Math.round(newVol * 100)}%`);
         }
-      } else if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-        e.preventDefault();
-        setShowShortcutsModal((prev) => !prev);
+      } else if (e.key === '?') {
+        setShowShortcutsModal(prev => !prev);
       }
     };
 
@@ -278,8 +288,12 @@ export default function VideoPlayer({
 
   const handleEnded = () => {
     if (nextEpisodeTitle) {
-      setShowNextOverlay(true);
-      setCountdown(5);
+      if (autoNext) {
+        setShowNextOverlay(true);
+        setCountdown(5);
+      } else {
+        showToast('Qism yakunlandi. Keyingi qismni tanlang.');
+      }
     } else if (onEnded) {
       onEnded();
     }
@@ -643,6 +657,24 @@ export default function VideoPlayer({
                   </button>
                 ))}
               </div>
+
+              {/* Auto Next Episode Toggle for series & multfilms */}
+              {nextEpisodeTitle && (
+                <button
+                  onClick={() => {
+                    const nextVal = !autoNext;
+                    setAutoNext(nextVal);
+                    try { localStorage.setItem('filmx_auto_next', nextVal ? 'true' : 'false'); } catch {}
+                    showToast(nextVal ? '▶ Keyingi qismga avto-o\'tish: Yoqildi' : '⏸ Keyingi qismga avto-o\'tish: O\'chirildi');
+                  }}
+                  className={`player-tool-btn ${autoNext ? 'cinema-active' : ''}`}
+                  title="Keyingi qismga avtomatik o'tish sozlamasi"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}
+                >
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: autoNext ? '#10b981' : '#6b7280', display: 'inline-block' }} />
+                  Avto-o&apos;tish: {autoNext ? 'Faol' : 'O\'chiq'}
+                </button>
+              )}
             </div>
 
             {/* Right Group: Display Modes & Actions */}

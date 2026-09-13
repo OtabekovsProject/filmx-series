@@ -1,4 +1,4 @@
-import { getMovies, getSeries, getFeaturedMedia, getMultfilms, getDoramas, getLatestPremieres } from '@/lib/data';
+import { getMovies, getSeries, getFeaturedMedia, getMultfilms, getDoramas, getLatestPremieres, getNewlyAddedMedia } from '@/lib/data';
 import HeroSlider from '@/components/HeroSlider';
 import MovieCard from '@/components/MovieCard';
 import ContinueWatching from '@/components/ContinueWatching';
@@ -11,7 +11,8 @@ const ChevronRight = () => (
 );
 
 const CATEGORIES = [
-  { name: '🔥 Seriallar', href: '/catalog?type=series' },
+  { name: '🔥 Yangi qo\'shilganlar', href: '/catalog?sort=newest' },
+  { name: '📺 Seriallar', href: '/catalog?type=series' },
   { name: '🐱‍🏍 Multfilmlar', href: '/catalog?genre=multfilm' },
   { name: '🎭 Dorama', href: '/catalog?genre=dorama' },
   { name: '⚡ 2025-2026 Premyeralar', href: '/catalog?year=2025' },
@@ -32,6 +33,7 @@ export default function HomePage() {
   const multfilms = getMultfilms();
   const doramas = getDoramas();
   const latestPremieres = getLatestPremieres();
+  const newlyAdded = getNewlyAddedMedia();
 
   const trendingSeries = series.slice(0, 10);
   const latestMovies = movies.slice(0, 12);
@@ -73,6 +75,41 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+
+        {/* ── Section: Yangi qo'shilgan premyeralar ── */}
+        {newlyAdded.length > 0 && (
+          <section className="section" style={{ position: 'relative' }}>
+            <div className="section-header">
+              <div className="section-title-wrap">
+                <span className="section-indicator" style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)', boxShadow: '0 0 14px rgba(16, 185, 129, 0.7)' }} />
+                <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span>🔥 Yangi qo&apos;shilgan asarlar</span>
+                  <span style={{ 
+                    background: 'rgba(16, 185, 129, 0.15)', 
+                    color: '#34d399', 
+                    border: '1px solid rgba(16, 185, 129, 0.35)', 
+                    fontSize: '0.72rem', 
+                    fontWeight: 700, 
+                    padding: '2px 8px', 
+                    borderRadius: '999px', 
+                    letterSpacing: '0.5px' 
+                  }}>
+                    YANGI PREMYERA
+                  </span>
+                </h2>
+              </div>
+              <Link href="/catalog?sort=newest" className="section-link">
+                <span>Barchasi</span>
+                <ChevronRight />
+              </Link>
+            </div>
+            <div className="media-grid">
+              {newlyAdded.slice(0, 8).map((item) => (
+                <MovieCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── Section 1: Seriallar ── */}
         <section className="section">

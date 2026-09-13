@@ -472,6 +472,6 @@ export async function runEnhancedScraper(maxItemsToAdd = 500) {
     fs.writeFileSync(path.join(apkDataDir, 'series.json'), JSON.stringify(sanitizedSeries, null, 2), 'utf-8');
     console.log(`[SYNC] Successfully synced sanitized data to APK: ${sanitizedMovies.length} movies, ${sanitizedSeries.length} series!`);
   }
+if (process.argv[1] && process.argv[1].endsWith('enhanced_scraper.js')) {
+  runEnhancedScraper(900);
 }
-
-runEnhancedScraper(900);

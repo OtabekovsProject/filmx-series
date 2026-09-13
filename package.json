@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape": "node scripts/scraper.js"
+    "scrape": "node scripts/scraper.js",
+    "update:new": "node scripts/auto_updater.js",
+    "update:quick": "node scripts/auto_updater.js --quick",
+    "update:deep": "node scripts/auto_updater.js --deep",
+    "watch:updates": "node scripts/start_watcher.js"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
