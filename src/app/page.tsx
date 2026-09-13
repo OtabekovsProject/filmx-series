@@ -4,6 +4,7 @@ import MovieCard from '@/components/MovieCard';
 import ContinueWatching from '@/components/ContinueWatching';
 import SiteIntroSection from '@/components/SiteIntroSection';
 import PlatformFeatures from '@/components/PlatformFeatures';
+import AndroidAppShowcase from '@/components/AndroidAppShowcase';
 import Link from 'next/link';
 
 const ChevronRight = () => (
@@ -280,6 +281,9 @@ export default function HomePage() {
             </div>
           </section>
         )}
+
+        {/* ── Official Android App Showcase & APK Download ── */}
+        <AndroidAppShowcase />
 
         {/* ── Platform Core Features & Benefits Showcase ── */}
         <PlatformFeatures />
