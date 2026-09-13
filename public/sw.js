@@ -2,7 +2,7 @@
 // FILMX SERVICE WORKER — ULTRA-FAST CACHING & OFFLINE PWA
 // ═════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'filmx-v3.0';
+const CACHE_NAME = 'filmx-v3.2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -73,6 +73,19 @@ self.addEventListener('fetch', (event) => {
 
   if (isRSC) {
     // Let browser handle native network request
+    return;
+  }
+
+  // CRITICAL: Video streams and range requests must bypass Service Worker for smooth streaming & seek
+  const isVideoOrMedia =
+    request.destination === 'video' ||
+    request.destination === 'audio' ||
+    url.pathname.endsWith('.mp4') ||
+    url.pathname.endsWith('.m3u8') ||
+    url.pathname.endsWith('.webm') ||
+    request.headers.get('range');
+
+  if (isVideoOrMedia) {
     return;
   }
 

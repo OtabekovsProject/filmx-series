@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import ConditionalLayout from '@/components/ConditionalLayout';
 import PwaRegister from '@/components/PwaRegister';
+import { StoreProvider } from '@/context/StoreContext';
 
 export const viewport: Viewport = {
   themeColor: '#060913',
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     default: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
     template: '%s | FilmX'
   },
-  description: 'FilmX — 930+ dan ortiq eng so\'nggi tarjima kinolar, ko\'p qismli premyera seriallar, hind, turk va jahon filmlarini 1080p Full HD sifatda bepul online tomosha qiling.',
+  description: 'FilmX — 1,470+ dan ortiq eng so\'nggi tarjima kinolar, ko\'p qismli premyera seriallar, multfilmlar, doramalar, hind va jahon filmlarini 1080p Full HD va 4K sifatda bepul online tomosha qiling.',
   keywords: [
     'FilmX',
     'filmx series',
@@ -77,7 +78,7 @@ export const metadata: Metadata = {
     url: 'https://filmx-series.vercel.app',
     siteName: 'FilmX',
     title: 'FilmX — Kinolar va Seriallar Portali (HD Uzbek tilida)',
-    description: '930+ dan ortiq premyera kinolar, ko\'p qismli seriallar va multfilmlarni 1080p Full HD sifatda bepul tomosha qiling.',
+    description: '1,470+ dan ortiq premyera kinolar, ko\'p qismli seriallar va multfilmlarni 1080p Full HD va 4K sifatda bepul tomosha qiling.',
     images: [
       {
         url: '/icons/icon-512x512.png',
@@ -90,7 +91,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'FilmX — Kinolar va Seriallar Portali (HD)',
-    description: '930+ premyera kinolar va seriallarni 1080p Full HD sifatda bepul tomosha qiling.',
+    description: '1,470+ premyera kinolar va seriallarni 1080p Full HD va 4K sifatda bepul tomosha qiling.',
     images: ['/icons/icon-512x512.png'],
   },
   robots: {
@@ -115,15 +116,15 @@ const jsonLdWebsite = {
       url: 'https://filmx-series.vercel.app',
       name: 'FilmX',
       alternateName: ['FilmX Series', 'FilmX Uzbek', 'Filmx-Series'],
-      description: '930+ premyera kinolar va seriallarni 1080p Full HD sifatda bepul online tomosha qiling.',
+      description: '1,470+ premyera kinolar va seriallarni 1080p Full HD va 4K sifatda bepul online tomosha qiling.',
       inLanguage: 'uz-UZ',
       potentialAction: {
         '@type': 'SearchAction',
         target: {
           '@type': 'EntryPoint',
           urlTemplate: 'https://filmx-series.vercel.app/catalog?search={search_term_string}',
+          'query-input': 'required name=search_term_string',
         },
-        'query-input': 'required name=search_term_string',
       },
     },
     {
@@ -145,6 +146,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="uz" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        />
         <link rel="manifest" href="/manifest.json" />
         <script
           type="application/ld+json"
@@ -198,10 +205,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body suppressHydrationWarning>
-        <PwaRegister />
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
+        <StoreProvider>
+          <PwaRegister />
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </StoreProvider>
       </body>
     </html>
   );

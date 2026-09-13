@@ -22,12 +22,26 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
-let searchCache: SearchItem[] | null = null;
+interface IndexedSearchItem extends SearchItem {
+  _searchText: string;
+}
+
+let searchCache: IndexedSearchItem[] | null = null;
+
+const QUICK_SEARCH_TAGS = [
+  '⚡ Premyeralar',
+  '📺 Seriallar',
+  '🐱‍🏍 Multfilmlar',
+  '🎭 Doramalar',
+  '💥 Jangari',
+  '🌟 Hind kinolari',
+  '🔪 Triller'
+];
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState<SearchItem[]>(() => searchCache || []);
+  const [items, setItems] = useState<IndexedSearchItem[]>(() => searchCache || []);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -36,13 +50,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       if (searchCache && searchCache.length > 0) {
         setItems(searchCache);
       } else {
-        // Load search index once and cache in memory
         fetch('/api/search')
           .then(res => res.json())
           .then(data => {
-            if (data?.items) {
-              searchCache = data.items;
-              setItems(data.items);
+            if (data?.items && Array.isArray(data.items)) {
+              const indexed: IndexedSearchItem[] = data.items.map((it: SearchItem) => ({
+                ...it,
+                _searchText: `${it.title} ${it.year} ${it.country || ''} ${(it.genres || []).join(' ')}`.toLowerCase()
+              }));
+              searchCache = indexed;
+              setItems(indexed);
             }
           })
           .catch(() => {});
@@ -58,14 +75,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [isOpen]);
 
   const results = useMemo(() => {
-    if (!query.trim()) return items.slice(0, 8);
+    if (!query.trim()) return items.slice(0, 10);
     const q = query.toLowerCase().trim();
-    return items.filter(item => 
-      item.title.toLowerCase().includes(q) ||
-      item.genres?.some(g => g.toLowerCase().includes(q)) ||
-      item.country?.toLowerCase().includes(q) ||
-      item.year.toString().includes(q)
-    ).slice(0, 10);
+    return items.filter(item => item._searchText.includes(q)).slice(0, 12);
   }, [query, items]);
 
   useEffect(() => {
@@ -150,7 +162,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="930+ ta kino yoki serial nomini qidiring..."
+            placeholder="1,470+ ta kino yoki serial nomini qidiring..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             style={{
@@ -174,6 +186,27 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           }}>
             ESC
           </span>
+        </div>
+
+        {/* Quick Search Suggestions */}
+        <div className="search-tags-row">
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Tavsiya:
+          </span>
+          {QUICK_SEARCH_TAGS.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              className="search-tag-chip"
+              onClick={() => {
+                const cleanTag = tag.replace(/^[^\w\s\d]+/, '').trim().toLowerCase();
+                setQuery(cleanTag);
+                inputRef.current?.focus();
+              }}
+            >
+              {tag}
+            </button>
+          ))}
         </div>
 
         {/* Results List */}

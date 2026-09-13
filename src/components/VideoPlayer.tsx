@@ -26,7 +26,7 @@ export default function VideoPlayer({
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { recordProgress, markAsWatched, isWatched } = useWatchHistory();
+  const { recordProgress, markAsWatched, isWatched, getProgress } = useWatchHistory();
 
   const [currentSrc, setCurrentSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
@@ -37,6 +37,11 @@ export default function VideoPlayer({
   const [showNextOverlay, setShowNextOverlay] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Resume progress state
+  const [savedResumeTime, setSavedResumeTime] = useState<number | null>(null);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
   // Skip & Volume On-screen HUD state
   const [hudNotice, setHudNotice] = useState<{ text: string; side: 'left' | 'right' | 'center' } | null>(null);
@@ -59,6 +64,48 @@ export default function VideoPlayer({
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Restore saved volume and playback rate
+  useEffect(() => {
+    try {
+      const savedVol = localStorage.getItem('filmx_player_volume');
+      if (savedVol && videoRef.current) {
+        const v = parseFloat(savedVol);
+        if (!isNaN(v)) videoRef.current.volume = v;
+      }
+      const savedSpd = localStorage.getItem('filmx_player_speed');
+      if (savedSpd && videoRef.current) {
+        const s = parseFloat(savedSpd);
+        if (!isNaN(s)) {
+          videoRef.current.playbackRate = s;
+          setPlaybackSpeed(s);
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Check for resume progress on media load
+  useEffect(() => {
+    if (!mediaItem) return;
+    const prog = getProgress(mediaItem.id);
+    if (prog && prog.currentTime > 15 && prog.progressPercent < 90) {
+      setSavedResumeTime(prog.currentTime);
+      setShowResumeBanner(true);
+    } else {
+      setShowResumeBanner(false);
+    }
+  }, [mediaItem, getProgress]);
+
+  const handleResumePlayback = () => {
+    if (videoRef.current && savedResumeTime) {
+      videoRef.current.currentTime = savedResumeTime;
+      videoRef.current.play().catch(() => {});
+      const mins = Math.floor(savedResumeTime / 60);
+      const secs = Math.floor(savedResumeTime % 60);
+      showToast(`▶ Oxirgi to'xtagan joy: ${mins}:${secs < 10 ? '0' : ''}${secs} dan davom etildi`);
+    }
+    setShowResumeBanner(false);
   };
 
   useEffect(() => {
@@ -200,16 +247,23 @@ export default function VideoPlayer({
         if (!isPlayerActive) return;
         e.preventDefault();
         if (videoRef.current) {
-          videoRef.current.volume = Math.min(1, Math.round((videoRef.current.volume + 0.1) * 10) / 10);
-          showHud(`🔊 Ovoz: ${Math.round(videoRef.current.volume * 100)}%`);
+          const newVol = Math.min(1, Math.round((videoRef.current.volume + 0.1) * 10) / 10);
+          videoRef.current.volume = newVol;
+          try { localStorage.setItem('filmx_player_volume', newVol.toString()); } catch {}
+          showHud(`🔊 Ovoz: ${Math.round(newVol * 100)}%`);
         }
       } else if (e.key === 'ArrowDown') {
         if (!isPlayerActive) return;
         e.preventDefault();
         if (videoRef.current) {
-          videoRef.current.volume = Math.max(0, Math.round((videoRef.current.volume - 0.1) * 10) / 10);
-          showHud(`🔉 Ovoz: ${Math.round(videoRef.current.volume * 100)}%`);
+          const newVol = Math.max(0, Math.round((videoRef.current.volume - 0.1) * 10) / 10);
+          videoRef.current.volume = newVol;
+          try { localStorage.setItem('filmx_player_volume', newVol.toString()); } catch {}
+          showHud(`🔉 Ovoz: ${Math.round(newVol * 100)}%`);
         }
+      } else if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setShowShortcutsModal((prev) => !prev);
       }
     };
 
@@ -328,6 +382,37 @@ export default function VideoPlayer({
         maxWidth: isTheaterMode ? '100%' : '1100px',
         margin: '0 auto',
       }}>
+        {/* Ambient Cinema Glow */}
+        {poster && (
+          <div
+            className="player-ambient-glow"
+            style={{
+              backgroundImage: `url(${poster})`,
+              opacity: isCinemaMode ? 0.6 : 0.35,
+            }}
+          />
+        )}
+
+        {/* Resume Playback Banner */}
+        {showResumeBanner && savedResumeTime && (
+          <div className="resume-prompt-banner">
+            <span style={{ fontSize: '18px' }}>⏱️</span>
+            <span className="resume-text">
+              Oxirgi to&apos;xtagan joyingiz: <strong>{Math.floor(savedResumeTime / 60)}:{Math.floor(savedResumeTime % 60) < 10 ? '0' : ''}{Math.floor(savedResumeTime % 60)}</strong>
+            </span>
+            <button onClick={handleResumePlayback} className="resume-btn-confirm">
+              Davom ettirish ▶
+            </button>
+            <button
+              onClick={() => setShowResumeBanner(false)}
+              className="resume-btn-dismiss"
+              title="Yopish"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Video Frame */}
         <div
           ref={containerRef}
@@ -632,6 +717,15 @@ export default function VideoPlayer({
                 🔗 Havola
               </button>
 
+              {/* Keyboard shortcuts helper button */}
+              <button
+                onClick={() => setShowShortcutsModal(true)}
+                className="player-tool-btn"
+                title="Tezkor tugmalar ro'yxati (?)"
+              >
+                ⌨️ Tugmalar
+              </button>
+
               {/* Direct Download Button */}
               {src && (
                 <a
@@ -649,6 +743,93 @@ export default function VideoPlayer({
           </div>
         </div>
       </div>
+
+      {/* Keyboard Shortcuts Modal */}
+      {showShortcutsModal && (
+        <div
+          onClick={() => setShowShortcutsModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: 'rgba(5, 7, 15, 0.85)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-glass)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '28px',
+              maxWidth: '480px',
+              width: '100%',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 40px rgba(229,9,20,0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '20px' }}>⌨️</span>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
+                  Tezkor Tugmalar (Hotkeys)
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowShortcutsModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: 'none',
+                  color: '#fff',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                { key: 'Space', desc: 'Ijro / Pauza (Play / Pause)' },
+                { key: 'F', desc: 'To\'liq ekran (Fullscreen)' },
+                { key: 'M', desc: 'Ovozni o\'chirish / yoqish (Mute)' },
+                { key: 'P', desc: 'Kichik suzuvchi oyna (Picture-in-Picture)' },
+                { key: '← / →', desc: '10 soniya orqaga / oldinga' },
+                { key: '↑ / ↓', desc: 'Ovozni ko\'tarish / pasaytirish' },
+                { key: '?', desc: 'Ushbu yordamchi darchani ochish' },
+              ].map((s, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '13.5px' }}>{s.desc}</span>
+                  <kbd style={{ background: 'rgba(229,9,20,0.18)', border: '1px solid rgba(229,9,20,0.35)', color: '#ff7485', padding: '3px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>
+                    {s.key}
+                  </kbd>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowShortcutsModal(false)}
+              className="btn-primary"
+              style={{ width: '100%', marginTop: '20px', padding: '12px', borderRadius: 'var(--radius-sm)' }}
+            >
+              Tushunarli
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

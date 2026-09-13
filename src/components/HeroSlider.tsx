@@ -49,9 +49,23 @@ export default function HeroSlider({ items }: HeroSliderProps) {
     return () => clearInterval(interval);
   }, [items.length, isPaused, isInView]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!containerRef.current?.matches(':hover')) return;
+      if (e.key === 'ArrowLeft') {
+        setCurrentIndex(prev => (prev > 0 ? prev - 1 : items.length - 1));
+      } else if (e.key === 'ArrowRight') {
+        setCurrentIndex(prev => (prev + 1) % items.length);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [items.length]);
+
   const current = items[currentIndex];
   const watchHref = current ? (current.type === 'series' ? `/series/${current.id}` : `/movie/${current.id}`) : '#';
   const backdrop = current ? (current.backdrop || current.poster) : '';
+  const isHeroFav = current ? isFavorite(current.id) : false;
 
   // Kartalarni memoizatsiya qilish
   const displayedCards = useMemo(() => {
@@ -76,6 +90,8 @@ export default function HeroSlider({ items }: HeroSliderProps) {
       className="hero-wrapper"
       onTouchStart={() => setIsPaused(true)}
       onTouchEnd={() => setIsPaused(false)}
+      tabIndex={0}
+      aria-label="Premyeralar slayderi"
     >
       {/* Animated Background */}
       <div
@@ -90,11 +106,11 @@ export default function HeroSlider({ items }: HeroSliderProps) {
           {/* Live Badge */}
           <div className="hero-live-badge">
             <span className="hero-live-dot" />
-            <span>{current.type === 'series' ? '📺 Serial' : '🎬 Premyera'} • 1080p FHD</span>
+            <span>{current.type === 'series' ? '📺 Serial' : '🎬 Premyera'} • 1080p FHD & 4K</span>
           </div>
 
           {/* Title */}
-          <h1 className="hero-main-title">{current.title}</h1>
+          <h2 className="hero-main-title">{current.title}</h2>
 
           {/* Meta */}
           <div className="hero-meta-row">
@@ -130,6 +146,29 @@ export default function HeroSlider({ items }: HeroSliderProps) {
               </svg>
               {current.type === 'series' ? 'Barcha qismlar' : "Batafsil"}
             </Link>
+            <button
+              type="button"
+              onClick={() => toggleFavorite(current)}
+              className="hero-btn-fav"
+              style={{
+                background: isHeroFav ? 'rgba(229,9,20,0.22)' : 'rgba(255,255,255,0.06)',
+                border: `1px solid ${isHeroFav ? '#e50914' : 'rgba(255,255,255,0.14)'}`,
+                color: isHeroFav ? '#e50914' : '#fff',
+                borderRadius: 'var(--radius-sm)',
+                padding: '16px 20px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              title={isHeroFav ? "Sevimlilardan o'chirish" : "Sevimlilarga saqlash"}
+              aria-label="Sevimlilarga saqlash"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={isHeroFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </button>
           </div>
 
           {/* Slide Dots */}

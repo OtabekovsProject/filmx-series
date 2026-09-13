@@ -4,19 +4,19 @@ FilmX — Next.js 15, React 19 va TypeScript asosida yaratilgan zamonaviy, tezko
 
 ## 🚀 Asosiy Imkoniyatlar
 
-- **🎬 930+ Kino va Seriallar Katalogi**: Barcha media fayllar to'liq optimallashgan statik sahifalar (SSG) sifatida ishlaydi.
-- **⚡ Tezkor va Yengil**: Sahifalarning birinchi yuklanish hajmi bor-yo'g'i ~103 KB.
+- **🎬 1,479+ Kino va Seriallar Katalogi (1,171 Kino, 308 Serial, 5,000+ Qism)**: Barcha media fayllar to'liq optimallashgan statik sahifalar (SSG - 1,494 sahifa) sifatida ishlaydi.
+- **⚡ Ultra-Tezkor va Yengil**: Yagona reaktiv `StoreContext`, render-blocking `@import` bartaraf etilgan, First Load JS ~103 KB.
 - **✨ Yangilangan Dinamik Hero Slider**:
   - Alohida-alohida joylashgan neon jiloli vertikal kino kartalari.
-  - Har 2.5 soniyada uzluksiz navbat bilan yangilanuvchi dinamik kartalar.
+  - Slaydlar almashinuvi, klaviatura (← / →) navigatsiyasi va tezkor Sevimlilarga saqlash tugmasi.
   - Jonli progress indikatori (Live update timer).
   - Sichqoncha olib borilganda (hover) avtomatik to'xtash va istalgan kartani tanlash imkoniyati.
-- **📱 PWA (Progressive Web App)**: Oflayn rejimda ishlash, Service Worker (v2.0) va o'rnatish imkoniyati.
-- **❤️ Sevimlilar Tizimi (Favorites)**: Foydalanuvchi yoqtirgan filmlarini saqlab borish uchun LocalStorage integratsiyasi.
-- **⏯️ Ko'rishda Davom Eting (Continue Watching)**: Har bir film va serial qismida to'xtagan vaqtni saqlab qolish va keyinroq davom ettirish.
-- **🎥 Zamonaviy Video Player**: Teatr rejimi (Theater mode), sifat sozlamalari, ovoz va boshqaruv klavishlari.
-- **🔍 Qidiruv va Filtrlash**: Janrlar, davlatlar, chiqarilgan yil va reyting bo'yicha tezkor qidiruv.
-- **📱 Responsive Dizayn**: Desktop, planshet va mobil qurilmalar uchun moslashuvchan interfeys (Mobile Bottom Nav bilan).
+- **📱 PWA (Progressive Web App)**: Oflayn rejimda ishlash, Service Worker (v3.2 - video range request bypass bilan) va o'rnatish imkoniyati.
+- **❤️ Sevimlilar Tizimi (Favorites)**: $O(1)$ tezkor tekshiruv, bir zumda sinxronlashuvchi LocalStorage integratsiyasi.
+- **⏯️ Ko'rishda Davom Eting (Resume Playback)**: Har bir film va serial qismida to'xtagan vaqtni saqlab qolish va video player ochilganda bir bosishda oxirgi to'xtagan joydan davom ettirish taklifi.
+- **🎥 Zamonaviy Video Player**: Ambient Cinema Glow (poster aks ettiruvchi nur), teatr rejimi (Theater mode), sifat sozlamalari, ovoz/tezlik xotirasi va klaviatura yordamchi modali (`?`).
+- **🔍 Qidiruv va Filtrlash**: 1,479 ta asar uchun oldindan indeksatsiyalangan tezkor qidiruv, tavsiya teglari, janrlar va davlatlar bo'yicha saralash.
+- **📱 Responsive Dizayn**: Desktop, planshet va mobil qurilmalar uchun moslashuvchan interfeys (Mobile Bottom Nav va Scroll-To-Top suzuvchi tugmasi bilan).
 
 ## 🛠️ Texnologiyalar
 

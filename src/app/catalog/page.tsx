@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: "Kino va Seriallar Katalogi — Barcha janrlar to'plami | FilmX",
-  description: "FilmX katalogida 930+ dan ortiq tarjima kinolar, jangari, melodrama, komediya, fantastika filmlar va ko'p qismli seriallarni bepul tomosha qiling.",
+  description: "FilmX katalogida 1,470+ dan ortiq tarjima kinolar, multfilmlar, dorama, jangari, melodrama, komediya, fantastika filmlar va ko'p qismli seriallarni bepul tomosha qiling.",
   keywords: [
     'kino katalogi',
     'seriallar katalogi',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Kino va Seriallar Katalogi — FilmX",
-    description: "930+ tarjima kinolar va seriallar to'plami. Bepul 1080p HD sifatda tomosha qiling.",
+    description: "1,470+ tarjima kinolar va seriallar to'plami. Bepul 1080p Full HD va 4K sifatda tomosha qiling.",
     url: 'https://filmx-series.vercel.app/catalog',
     siteName: 'FilmX',
     type: 'website',

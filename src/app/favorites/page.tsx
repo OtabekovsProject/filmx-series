@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useState, useMemo } from 'react';
 
 export default function FavoritesPage() {
-  const { favorites, isLoaded } = useFavorites();
+  const { favorites, isLoaded, clearFavorites } = useFavorites();
   const [filterType, setFilterType] = useState<'all' | 'movie' | 'series'>('all');
 
   const filtered = useMemo(() => {
@@ -38,26 +38,49 @@ export default function FavoritesPage() {
         </p>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Filter Tabs & Actions */}
       {favorites.length > 0 && (
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '28px' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
+              onClick={() => setFilterType('all')}
+            >
+              Barchasi ({favorites.length})
+            </button>
+            <button
+              className={`filter-btn ${filterType === 'movie' ? 'active' : ''}`}
+              onClick={() => setFilterType('movie')}
+            >
+              Kinolar ({favorites.filter(f => f.type === 'movie').length})
+            </button>
+            <button
+              className={`filter-btn ${filterType === 'series' ? 'active' : ''}`}
+              onClick={() => setFilterType('series')}
+            >
+              Seriallar ({favorites.filter(f => f.type === 'series').length})
+            </button>
+          </div>
+
           <button
-            className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
-            onClick={() => setFilterType('all')}
+            onClick={() => {
+              if (window.confirm("Rostdan ham barcha sevimlilarni ro'yxatdan o'chirmoqchimisiz?")) {
+                clearFavorites();
+              }
+            }}
+            style={{
+              background: 'rgba(229, 9, 20, 0.12)',
+              border: '1px solid rgba(229, 9, 20, 0.3)',
+              color: '#ff7485',
+              borderRadius: 'var(--radius-sm)',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
           >
-            Barchasi ({favorites.length})
-          </button>
-          <button
-            className={`filter-btn ${filterType === 'movie' ? 'active' : ''}`}
-            onClick={() => setFilterType('movie')}
-          >
-            Kinolar ({favorites.filter(f => f.type === 'movie').length})
-          </button>
-          <button
-            className={`filter-btn ${filterType === 'series' ? 'active' : ''}`}
-            onClick={() => setFilterType('series')}
-          >
-            Seriallar ({favorites.filter(f => f.type === 'series').length})
+            🗑️ Ro&apos;yxatni tozalash
           </button>
         </div>
       )}
