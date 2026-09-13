@@ -2,6 +2,8 @@ import { getMovies, getSeries, getFeaturedMedia, getMultfilms, getDoramas, getLa
 import HeroSlider from '@/components/HeroSlider';
 import MovieCard from '@/components/MovieCard';
 import ContinueWatching from '@/components/ContinueWatching';
+import SiteIntroSection from '@/components/SiteIntroSection';
+import PlatformFeatures from '@/components/PlatformFeatures';
 import Link from 'next/link';
 
 const ChevronRight = () => (
@@ -58,6 +60,12 @@ export default function HomePage() {
         <h1 className="sr-only">
           FilmX — O&apos;zbek tilidagi eng so&apos;nggi tarjima kinolar, premyeralar, multfilmlar, doramalar va yangi seriallar portali
         </h1>
+
+        {/* ── Modern Site Introduction Showcase with Real-Time Stats ── */}
+        <SiteIntroSection
+          totalMovies={movies.length}
+          totalSeries={series.length}
+        />
 
         {/* Continue Watching (client-side) */}
         <ContinueWatching />
@@ -273,56 +281,8 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* ── FilmX Presentation Banner ── */}
-        <section className="section" style={{ marginBottom: '80px' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(229,9,20,0.12) 0%, rgba(139,92,246,0.1) 50%, rgba(0,242,254,0.08) 100%)',
-            border: '1px solid rgba(229,9,20,0.25)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: '52px 48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '32px',
-            flexWrap: 'wrap',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 0 80px -20px rgba(229,9,20,0.2)',
-          }}>
-            <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(229,9,20,0.2) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.12)', border: '1px solid rgba(229,9,20,0.3)', color: '#ff7485', padding: '5px 14px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '16px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e50914', display: 'inline-block', boxShadow: '0 0 8px #e50914' }} />
-                1,170+ kino · 300+ serial · 5,000+ qism · 1080p FHD & 4K
-              </div>
-              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(22px, 3vw, 36px)', fontWeight: 900, letterSpacing: '-0.025em', marginBottom: '10px', lineHeight: 1.2 }}>
-                O&apos;zbekcha tarjimada barcha{' '}
-                <span style={{ background: 'linear-gradient(135deg, #e50914, #8b5cf6, #00f2fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  1,470+ kino, serial va multfilm
-                </span>
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: 1.65, maxWidth: '500px' }}>
-                Reklamasiz, ro&apos;yxatdan o&apos;tmasdan, bepul. Multfilmlar, Doramalar, Hind, AQSH, Koreya, Turkiya kinolari — 1080p Full HD va 4K sifatda!
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
-              <Link href="/catalog" className="btn-primary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
-                </svg>
-                Katalogni Ko&apos;ring
-              </Link>
-              <Link href="/favorites" className="btn-secondary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                Sevimlilarim
-              </Link>
-            </div>
-          </div>
-        </section>
+        {/* ── Platform Core Features & Benefits Showcase ── */}
+        <PlatformFeatures />
       </div>
     </div>
   );
