@@ -23,7 +23,7 @@ const FOOTER_LINKS = {
     { label: 'Yangi Premyeralar', href: '/catalog?type=movie' },
   ],
   'Ilovalar': [
-    { label: '📱 Android APK (v1.6.0)', href: 'https://github.com/OtabekovsProject/filmx-apk/releases/latest/download/FilmX-v1.0.apk' },
+    { label: '📱 Android APK (v1.7.0)', href: 'https://github.com/OtabekovsProject/filmx-apk/releases/latest/download/FilmX-v1.0.apk' },
     { label: '🌐 GitHub Releases', href: 'https://github.com/OtabekovsProject/filmx-apk/releases' },
   ],
 };
