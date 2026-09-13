@@ -1,0 +1,48 @@
+name: Auto Update Movies & Series
+
+on:
+  schedule:
+    # Run every 6 hours automatically (UTC)
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-movies:
+    name: Check & Sync New Movies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: 🔄 Run Auto Updater & Sanitizer
+        run: |
+          node scripts/auto_updater.js
+
+      - name: 💾 Commit & Push Changes
+        run: |
+          git config --global user.name "FilmX Auto Bot"
+          git config --global user.email "bot@filmx.uz"
+          git add src/data/movies.json src/data/series.json scripts/update_history.json
+          if git diff --staged --quiet; then
+            echo "No new movies found in this run."
+          else
+            git commit -m "chore(data): auto-sync new movies & series [skip ci]"
+            git push origin main
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

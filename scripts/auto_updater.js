@@ -68,8 +68,8 @@ export function parseDetailPage(html, url) {
   const yearText = $('span.fs-meta__value[itemprop="dateCreated"], a[href*="/year/"]').first().text().trim();
   const year = parseYear(rawTitle, yearText);
 
-  // STRICT NEW FILTER: Accept content from 2021 onwards, prioritizing 2024-2026
-  if (year < 2021 && !rawTitle.toLowerCase().includes('2024') && !rawTitle.toLowerCase().includes('2025') && !rawTitle.toLowerCase().includes('2026')) {
+  // Accept all verified quality content with working video streams (from 1970 onwards)
+  if (year < 1970) {
     return null;
   }
 
@@ -302,46 +302,58 @@ export function parseDetailPage(html, url) {
 function buildCategoryUrls(mode = 'standard') {
   const urls = [];
 
-  const lastNewsPages = mode === 'quick' ? 3 : (mode === 'deep' ? 25 : 12);
-  const serialPages = mode === 'quick' ? 3 : (mode === 'deep' ? 20 : 10);
+  const lastNewsPages = mode === 'quick' ? 3 : (mode === 'deep' ? 30 : 15);
+  const tarjimaPages = mode === 'quick' ? 3 : (mode === 'deep' ? 25 : 12);
+  const serialPages = mode === 'quick' ? 4 : (mode === 'deep' ? 30 : 15);
   const multfilmPages = mode === 'quick' ? 3 : (mode === 'deep' ? 20 : 10);
-  const dramaPages = mode === 'quick' ? 2 : (mode === 'deep' ? 15 : 8);
-  const year2026Pages = 5;
-  const year2025Pages = mode === 'quick' ? 3 : (mode === 'deep' ? 20 : 10);
-  const year2024Pages = mode === 'quick' ? 3 : (mode === 'deep' ? 15 : 8);
+  const dramaPages = mode === 'quick' ? 3 : (mode === 'deep' ? 20 : 10);
+  const comedyPages = mode === 'quick' ? 2 : (mode === 'deep' ? 15 : 8);
+  const actionPages = mode === 'quick' ? 2 : (mode === 'deep' ? 15 : 8);
 
   // 1. Lastnews (all latest releases!)
   for (let i = 1; i <= lastNewsPages; i++) {
     urls.push(`${BASE_URL}/lastnews/${i === 1 ? '' : `page/${i}/`}`);
   }
 
-  // 2. Serials & Doramas
+  // 2. Tarjima kinolar & Xorijiy kinolar
+  for (let i = 1; i <= tarjimaPages; i++) {
+    urls.push(`${BASE_URL}/films/tarjima_kinolar/${i === 1 ? '' : `page/${i}/`}`);
+    urls.push(`${BASE_URL}/films/xorijfilm/${i === 1 ? '' : `page/${i}/`}`);
+  }
+
+  // 3. Serials, Doramas & Turkish dramas
   for (let i = 1; i <= serialPages; i++) {
     urls.push(`${BASE_URL}/films/serial/${i === 1 ? '' : `page/${i}/`}`);
   }
 
-  // 3. Multfilms & Anime
+  // 4. Multfilms & Anime
   for (let i = 1; i <= multfilmPages; i++) {
     urls.push(`${BASE_URL}/films/multfilmlar_multiklar/${i === 1 ? '' : `page/${i}/`}`);
     urls.push(`${BASE_URL}/xfsearch/genre/%D0%BC%D1%83%D0%BB%D1%8C%D1%82%D1%84%D0%B8%D0%BB%D1%8C%D0%BC/${i === 1 ? '' : `page/${i}/`}`);
   }
 
-  // 4. Dramas & Melodramas
+  // 5. Dramas, Melodramas & Doramas
   for (let i = 1; i <= dramaPages; i++) {
     urls.push(`${BASE_URL}/xfsearch/genre/%D0%B4%D1%80%D0%B0%D0%BC%D0%B0/${i === 1 ? '' : `page/${i}/`}`);
     urls.push(`${BASE_URL}/xfsearch/genre/%D0%BC%D0%B5%D0%BB%D0%BE%D0%B4%D1%80%D0%B0%D0%BC%D0%B0/${i === 1 ? '' : `page/${i}/`}`);
   }
 
-  // 5. Guaranteed Year Catalogs (2026, 2025, 2024)
-  for (let i = 1; i <= year2026Pages; i++) {
-    urls.push(`${BASE_URL}/year/2026/${i === 1 ? '' : `page/${i}/`}`);
+  // 6. Action & Thriller
+  for (let i = 1; i <= actionPages; i++) {
+    urls.push(`${BASE_URL}/xfsearch/genre/%D0%B1%D0%BE%D0%B5%D0%B2%D0%B8%D0%BA/${i === 1 ? '' : `page/${i}/`}`);
+    urls.push(`${BASE_URL}/xfsearch/genre/%D1%82%D1%80%D0%B8%D0%BB%D0%BB%D0%B5%D1%80/${i === 1 ? '' : `page/${i}/`}`);
   }
-  for (let i = 1; i <= year2025Pages; i++) {
-    urls.push(`${BASE_URL}/year/2025/${i === 1 ? '' : `page/${i}/`}`);
+
+  // 7. Comedy
+  for (let i = 1; i <= comedyPages; i++) {
+    urls.push(`${BASE_URL}/xfsearch/genre/%D0%BA%D0%BE%D0%BC%D0%B5%D0%B4%D0%B8%D1%8F/${i === 1 ? '' : `page/${i}/`}`);
   }
-  for (let i = 1; i <= year2024Pages; i++) {
-    urls.push(`${BASE_URL}/year/2024/${i === 1 ? '' : `page/${i}/`}`);
-  }
+
+  // 8. Guaranteed Year Catalogs (2026, 2025, 2024, 2023)
+  for (let i = 1; i <= 6; i++) urls.push(`${BASE_URL}/year/2026/${i === 1 ? '' : `page/${i}/`}`);
+  for (let i = 1; i <= 15; i++) urls.push(`${BASE_URL}/year/2025/${i === 1 ? '' : `page/${i}/`}`);
+  for (let i = 1; i <= 12; i++) urls.push(`${BASE_URL}/year/2024/${i === 1 ? '' : `page/${i}/`}`);
+  for (let i = 1; i <= 10; i++) urls.push(`${BASE_URL}/year/2023/${i === 1 ? '' : `page/${i}/`}`);
 
   return Array.from(new Set(urls));
 }
