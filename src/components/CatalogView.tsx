@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaItem } from '@/types';
 import MovieCard from '@/components/MovieCard';
+import { calculateSearchScore } from '@/lib/searchUtils';
 
 interface CatalogViewProps {
   initialItems: MediaItem[];
@@ -146,14 +147,8 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
 
       // Search Query
       if (query.trim()) {
-        const q = query.toLowerCase().trim();
-        const titleMatch = item.title.toLowerCase().includes(q);
-        const actorMatch = item.actors?.some((a) => a.toLowerCase().includes(q));
-        const genreMatch = item.genres?.some((g) => g.toLowerCase().includes(q));
-        const countryMatch = item.country?.toLowerCase().includes(q);
-        if (!titleMatch && !actorMatch && !genreMatch && !countryMatch) {
-          return false;
-        }
+        const score = calculateSearchScore(item, query);
+        if (score <= 0) return false;
       }
 
       return true;
@@ -161,6 +156,11 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
 
     // Sorting
     return [...result].sort((a, b) => {
+      if (query.trim()) {
+        const scoreA = calculateSearchScore(a, query);
+        const scoreB = calculateSearchScore(b, query);
+        if (scoreB !== scoreA) return scoreB - scoreA;
+      }
       if (sortBy === 'added' || sortBy === 'newest') {
         const dateA = (a as any).addedAt ? new Date((a as any).addedAt).getTime() : 0;
         const dateB = (b as any).addedAt ? new Date((b as any).addedAt).getTime() : 0;

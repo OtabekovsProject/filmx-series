@@ -3,11 +3,13 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { searchAndRank } from '@/lib/searchUtils';
 
 interface SearchItem {
   id: string;
   type: 'movie' | 'series';
   title: string;
+  rawTitle?: string;
   poster: string;
   year: number;
   rating: number;
@@ -22,26 +24,24 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
-interface IndexedSearchItem extends SearchItem {
-  _searchText: string;
-}
-
-let searchCache: IndexedSearchItem[] | null = null;
+let searchCache: SearchItem[] | null = null;
 
 const QUICK_SEARCH_TAGS = [
-  '⚡ Premyeralar',
-  '📺 Seriallar',
-  '🐱‍🏍 Multfilmlar',
-  '🎭 Doramalar',
-  '💥 Jangari',
-  '🌟 Hind kinolari',
-  '🔪 Triller'
+  { label: '🧙‍♂️ Garri Potter', q: 'garri potter' },
+  { label: '🛡️ Qasoskorlar', q: 'qasoskorlar' },
+  { label: '🚕 Taksi', q: 'taksi' },
+  { label: '🕷️ O\'rgimchak Odam', q: 'orgimchak odam' },
+  { label: '⚡ Premyeralar', q: '2025' },
+  { label: '📺 Seriallar', q: 'serial' },
+  { label: '💥 Jangari', q: 'jangari' },
+  { label: '🐱‍🏍 Multfilm', q: 'multfilm' },
+  { label: '🎭 Doramalar', q: 'dorama' },
 ];
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState<IndexedSearchItem[]>(() => searchCache || []);
+  const [items, setItems] = useState<SearchItem[]>(() => searchCache || []);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,12 +54,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           .then(res => res.json())
           .then(data => {
             if (data?.items && Array.isArray(data.items)) {
-              const indexed: IndexedSearchItem[] = data.items.map((it: SearchItem) => ({
-                ...it,
-                _searchText: `${it.title} ${it.year} ${it.country || ''} ${(it.genres || []).join(' ')}`.toLowerCase()
-              }));
-              searchCache = indexed;
-              setItems(indexed);
+              searchCache = data.items;
+              setItems(data.items);
             }
           })
           .catch(() => {});
@@ -75,9 +71,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [isOpen]);
 
   const results = useMemo(() => {
-    if (!query.trim()) return items.slice(0, 10);
-    const q = query.toLowerCase().trim();
-    return items.filter(item => item._searchText.includes(q)).slice(0, 12);
+    return searchAndRank(items, query, 14);
   }, [query, items]);
 
   useEffect(() => {
@@ -215,16 +209,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </span>
           {QUICK_SEARCH_TAGS.map((tag) => (
             <button
-              key={tag}
+              key={tag.label}
               type="button"
               className="search-tag-chip"
               onClick={() => {
-                const cleanTag = tag.replace(/^[^\w\s\d]+/, '').trim().toLowerCase();
-                setQuery(cleanTag);
+                setQuery(tag.q);
                 inputRef.current?.focus();
               }}
             >
-              {tag}
+              {tag.label}
             </button>
           ))}
         </div>
