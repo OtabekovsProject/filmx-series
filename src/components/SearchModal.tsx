@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { searchAndRank } from '@/lib/searchUtils';
@@ -70,13 +70,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [isOpen]);
 
+  const deferredQuery = useDeferredValue(query);
+
   const results = useMemo(() => {
-    return searchAndRank(items, query, 14);
-  }, [query, items]);
+    return searchAndRank(items, deferredQuery, 14);
+  }, [deferredQuery, items]);
 
   useEffect(() => {
     setSelectedIndex(0);
-  }, [query]);
+  }, [deferredQuery]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -248,6 +250,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <img
                     src={item.poster}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       width: '46px',
                       height: '62px',

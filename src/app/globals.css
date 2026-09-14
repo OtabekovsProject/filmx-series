@@ -3540,3 +3540,24 @@ body {
   content-visibility: auto;
   contain-intrinsic-size: 1px 400px;
 }
+
+/* ══════════════════════════════════════════════════════════
+   PERFORMANCE ANIMATIONS & GPU HINTS
+   ══════════════════════════════════════════════════════════ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Media card grid/list items: GPU-accelerated transforms for smooth hover */
+.media-card,
+.media-list-item,
+.movie-card {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Catalog grid: offscreen cards skip rendering */
+.catalog-grid-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 320px;
+}

@@ -280,9 +280,9 @@ export default function VideoPlayer({
         e.preventDefault();
         if (containerRef.current) {
           if (!document.fullscreenElement) {
-            containerRef.current.requestFullscreen?.();
+            containerRef.current.requestFullscreen?.().catch(() => {});
           } else {
-            document.exitFullscreen?.();
+            document.exitFullscreen?.().catch(() => {});
           }
         }
       } else if (e.key === 'm' || e.key === 'M') {
@@ -582,6 +582,7 @@ export default function VideoPlayer({
             poster={poster}
             controls
             playsInline
+            preload="metadata"
             onTimeUpdate={handleTimeUpdate}
             onError={handleVideoError}
             onEnded={handleEnded}

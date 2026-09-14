@@ -65,11 +65,35 @@ export default function HeroSlider({ items }: HeroSliderProps) {
   useEffect(() => {
     if (!containerRef.current || typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver(([entry]) => {
-      setIsInView(entry.isIntersecting);
+      setIsInView(entry.isIntersecting && document.visibilityState === 'visible');
     }, { threshold: 0.1 });
     observer.observe(containerRef.current);
-    return () => observer.disconnect();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        setIsInView(false);
+      } else if (containerRef.current) {
+        setIsInView(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
+
+  // Keyingi slayd rasmini oldindan yuklab qo'yish (seamless transition)
+  useEffect(() => {
+    if (!items || items.length <= 1) return;
+    const nextItem = items[(currentIndex + 1) % items.length];
+    const nextImg = nextItem?.backdrop || nextItem?.poster;
+    if (nextImg && typeof window !== 'undefined') {
+      const img = new window.Image();
+      img.src = nextImg;
+    }
+  }, [currentIndex, items]);
 
   useEffect(() => {
     if (items.length <= 1 || isPaused || !isInView) return;

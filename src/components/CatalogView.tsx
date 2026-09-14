@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaItem } from '@/types';
 import MovieCard from '@/components/MovieCard';
@@ -67,6 +67,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
   const initialQ = searchParams.get('q') || '';
 
   const [query, setQuery] = useState(initialQ);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQ);
   const [typeFilter, setTypeFilter] = useState(initialType);
   const [genreFilter, setGenreFilter] = useState(initialGenre);
   const [countryFilter, setCountryFilter] = useState(initialCountry);
@@ -75,6 +76,17 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
   const [sortBy, setSortBy] = useState(initialSort);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [visibleCount, setVisibleCount] = useState(24);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounced search: 300ms delay to avoid re-filtering 1500+ items on every keystroke
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [query]);
 
   // Sync state if URL changes
   useEffect(() => {
@@ -89,7 +101,23 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
   // Reset pagination on filter changes
   useEffect(() => {
     setVisibleCount(24);
-  }, [query, typeFilter, genreFilter, countryFilter, yearFilter, ratingFilter, sortBy]);
+  }, [debouncedQuery, typeFilter, genreFilter, countryFilter, yearFilter, ratingFilter, sortBy]);
+
+  // IntersectionObserver infinite scroll — auto-load more as user scrolls
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => prev + 24);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Filter and sort items
   const filteredItems = useMemo(() => {
@@ -146,8 +174,8 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
       }
 
       // Search Query
-      if (query.trim()) {
-        const score = calculateSearchScore(item, query);
+      if (debouncedQuery.trim()) {
+        const score = calculateSearchScore(item, debouncedQuery);
         if (score <= 0) return false;
       }
 
@@ -156,9 +184,9 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
 
     // Sorting
     return [...result].sort((a, b) => {
-      if (query.trim()) {
-        const scoreA = calculateSearchScore(a, query);
-        const scoreB = calculateSearchScore(b, query);
+      if (debouncedQuery.trim()) {
+        const scoreA = calculateSearchScore(a, debouncedQuery);
+        const scoreB = calculateSearchScore(b, debouncedQuery);
         if (scoreB !== scoreA) return scoreB - scoreA;
       }
       if (sortBy === 'added' || sortBy === 'newest') {
@@ -183,7 +211,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
       }
       return 0;
     });
-  }, [initialItems, query, typeFilter, genreFilter, countryFilter, yearFilter, ratingFilter, sortBy]);
+  }, [initialItems, debouncedQuery, typeFilter, genreFilter, countryFilter, yearFilter, ratingFilter, sortBy]);
 
   const hasActiveFilters =
     typeFilter !== 'all' ||
@@ -602,35 +630,34 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
             </div>
           )}
 
-          {/* Load More Button */}
+          {/* Infinite Scroll Sentinel */}
           {visibleCount < filteredItems.length && (
-            <div style={{ textAlign: 'center', marginTop: '48px' }}>
-              <button
-                onClick={() => setVisibleCount((prev) => prev + 24)}
-                className="btn-secondary"
-                style={{
-                  padding: '16px 40px',
-                  fontSize: '15px',
-                  fontWeight: 800,
-                  borderRadius: 'var(--radius-md)',
-                  cursor: 'pointer',
-                  border: '1px solid var(--border-glass)',
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}
-              >
-                <span>Yana 24 tasini yuklash</span>
-                <span style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px'
-                }}>
-                  {Math.min(visibleCount, filteredItems.length)} / {filteredItems.length}
+            <div ref={loadMoreRef} style={{ textAlign: 'center', marginTop: '48px', padding: '20px 0' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'var(--bg-card)',
+                padding: '12px 24px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-subtle)',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: 'var(--text-muted)'
+              }}>
+                <span className="loading-spinner" style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid rgba(229,9,20,0.3)',
+                  borderTopColor: '#e50914',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }} />
+                <span>
+                  {Math.min(visibleCount, filteredItems.length)} / {filteredItems.length} ko'rsatilmoqda
                 </span>
-              </button>
+              </div>
             </div>
           )}
         </>
