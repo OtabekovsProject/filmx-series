@@ -14,6 +14,48 @@ interface VideoPlayerProps {
   mediaItem?: any;
 }
 
+function optimizeVideoUrl(rawUrl?: string, selectedQuality: string = '1080p'): string {
+  if (!rawUrl) return '';
+  let url = rawUrl.trim();
+  if (url.startsWith('file://')) return url;
+
+  url = url.replace(/^https?:\/\/83\.69\.139\.204\/hdd(\d+)\//i, (m, p1) => `https://${p1}.fayllar1.ru/${p1}/`);
+  url = url.replace(/^https?:\/\/83\.69\.139\.204\/hdd\//i, 'https://15.fayllar1.ru/15/');
+  url = url.replace(/^https?:\/\/fayllar1\.ru\/([^/]+)\//i, (m, p1) => `https://${p1}.fayllar1.ru/${p1}/`);
+
+  if (selectedQuality.includes('720p')) {
+    url = url.replace(/1080p/gi, '720p');
+  } else if (selectedQuality.includes('480p')) {
+    url = url.replace(/1080p|720p/gi, '480p');
+  } else if (selectedQuality.includes('1080p')) {
+    url = url.replace(/720p|480p/gi, '1080p');
+  }
+
+  try {
+    const parsed = new URL(url);
+    parsed.pathname = parsed.pathname
+      .split('/')
+      .map((part) => {
+        try {
+          return encodeURIComponent(decodeURIComponent(part))
+            .replace(/%28/g, '(')
+            .replace(/%29/g, ')')
+            .replace(/%27/g, "'");
+        } catch {
+          return encodeURIComponent(part);
+        }
+      })
+      .join('/');
+    return parsed.toString();
+  } catch {
+    try {
+      return encodeURI(decodeURI(url));
+    } catch {
+      return encodeURI(url);
+    }
+  }
+}
+
 export default function VideoPlayer({
   src,
   poster,
@@ -28,7 +70,7 @@ export default function VideoPlayer({
   const containerRef = useRef<HTMLDivElement>(null);
   const { recordProgress, markAsWatched, isWatched, getProgress } = useWatchHistory();
 
-  const [currentSrc, setCurrentSrc] = useState(src);
+  const [currentSrc, setCurrentSrc] = useState(() => optimizeVideoUrl(src, quality));
   const [hasError, setHasError] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedQuality, setSelectedQuality] = useState(quality);
@@ -126,13 +168,13 @@ export default function VideoPlayer({
   };
 
   useEffect(() => {
-    setCurrentSrc(src);
+    setCurrentSrc(optimizeVideoUrl(src, selectedQuality));
     setHasError(false);
     setShowNextOverlay(false);
     if (videoRef.current) {
       videoRef.current.load();
     }
-  }, [src]);
+  }, [src, selectedQuality]);
 
   // Countdown timer for next episode auto-play
   useEffect(() => {
@@ -285,7 +327,28 @@ export default function VideoPlayer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleQualityChange = (q: string) => {
+    setSelectedQuality(q);
+    const prevTime = videoRef.current ? videoRef.current.currentTime : 0;
+    const wasPlaying = videoRef.current ? !videoRef.current.paused : false;
+    const nextUrl = optimizeVideoUrl(src, q);
+    setCurrentSrc(nextUrl);
+    showToast(`Sifat: ${q} o'rnatildi`);
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.currentTime = prevTime;
+        if (wasPlaying) videoRef.current.play().catch(() => {});
+      }
+    }, 150);
+  };
+
   const handleVideoError = () => {
+    if (!selectedQuality.includes('1080p')) {
+      setSelectedQuality('1080p Full HD');
+      setCurrentSrc(optimizeVideoUrl(src, '1080p Full HD'));
+      showToast("Asl sifatga o'tildi (1080p)");
+      return;
+    }
     setHasError(true);
     setCurrentSrc('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
   };
@@ -704,7 +767,7 @@ export default function VideoPlayer({
                 {['1080p FHD', '720p HD', '480p'].map((q) => (
                   <button
                     key={q}
-                    onClick={() => setSelectedQuality(q)}
+                    onClick={() => handleQualityChange(q)}
                     className={`player-pill-btn ${selectedQuality.includes(q.split(' ')[0]) ? 'active' : ''}`}
                   >
                     {q}
