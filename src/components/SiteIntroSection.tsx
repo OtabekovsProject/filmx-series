@@ -31,6 +31,8 @@ export default function SiteIntroSection({ totalMovies, totalSeries, totalEpisod
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(229, 9, 20, 0.25) 0%, transparent 70%)',
         filter: 'blur(50px)',
+        transform: 'translateZ(0)',
+        willChange: 'transform',
         pointerEvents: 'none'
       }} />
       <div style={{
@@ -42,6 +44,8 @@ export default function SiteIntroSection({ totalMovies, totalSeries, totalEpisod
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%)',
         filter: 'blur(50px)',
+        transform: 'translateZ(0)',
+        willChange: 'transform',
         pointerEvents: 'none'
       }} />
 

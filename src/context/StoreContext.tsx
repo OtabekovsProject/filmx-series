@@ -154,10 +154,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     recordProgress(item, 100, 100);
   }, [recordProgress]);
 
-  const isWatched = useCallback((id: string): boolean => {
-    const found = history.find((h) => h.id === id);
-    return found ? found.progressPercent >= 85 : false;
+  // Set of watched IDs for ultra-fast O(1) membership checks
+  const watchedIds = useMemo(() => {
+    const s = new Set<string>();
+    for (let i = 0; i < history.length; i++) {
+      if (history[i].progressPercent >= 85) {
+        s.add(history[i].id);
+      }
+    }
+    return s;
   }, [history]);
+
+  const isWatched = useCallback((id: string): boolean => {
+    return watchedIds.has(id);
+  }, [watchedIds]);
 
   const getProgress = useCallback((id: string): WatchHistoryItem | undefined => {
     return history.find((h) => h.id === id);

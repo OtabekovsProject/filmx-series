@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import Link from 'next/link';
 
 interface LiveStatsShowcaseProps {
@@ -23,83 +23,120 @@ function getVisitorId(): string {
   }
 }
 
-export default function LiveStatsShowcase({
+function LiveStatsShowcaseComponent({
   totalMovies,
   totalSeries,
   totalEpisodes = 5000
 }: LiveStatsShowcaseProps) {
-  // Real active online users tracked by real IP (defaults to 1 for the current active visitor)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animatedRef = useRef(false);
+
+  // Real active online users tracked by real IP
   const [onlineUsers, setOnlineUsers] = useState<number>(1);
-  const [animatedMovies, setAnimatedMovies] = useState(0);
-  const [animatedSeries, setAnimatedSeries] = useState(0);
-  const [animatedEpisodes, setAnimatedEpisodes] = useState(0);
-  const [isLiveActive, setIsLiveActive] = useState(false);
+  const [counts, setCounts] = useState({
+    movies: Math.floor(totalMovies * 0.95),
+    series: Math.floor(totalSeries * 0.95),
+    episodes: Math.floor(totalEpisodes * 0.95),
+  });
 
-  // Smooth Count-Up Animation on Mount for static counts
+  // Smooth Count-Up Animation via requestAnimationFrame only when visible in viewport
   useEffect(() => {
-    const duration = 1000; // ms
-    const steps = 25;
-    const interval = duration / steps;
-    let step = 0;
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      setCounts({ movies: totalMovies, series: totalSeries, episodes: totalEpisodes });
+      return;
+    }
 
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      const ease = 1 - Math.pow(1 - progress, 3);
+    const el = containerRef.current;
+    if (!el) return;
 
-      setAnimatedMovies(Math.floor(ease * totalMovies));
-      setAnimatedSeries(Math.floor(ease * totalSeries));
-      setAnimatedEpisodes(Math.floor(ease * totalEpisodes));
+    let rafId: number | null = null;
 
-      if (step >= steps) {
-        setAnimatedMovies(totalMovies);
-        setAnimatedSeries(totalSeries);
-        setAnimatedEpisodes(totalEpisodes);
-        clearInterval(timer);
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !animatedRef.current) {
+        animatedRef.current = true;
+        let startTime: number | null = null;
+        const duration = 650; // ms
+
+        const step = (timestamp: number) => {
+          if (!startTime) startTime = timestamp;
+          const progress = Math.min((timestamp - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+
+          setCounts({
+            movies: Math.floor(totalMovies * (0.95 + 0.05 * ease)),
+            series: Math.floor(totalSeries * (0.95 + 0.05 * ease)),
+            episodes: Math.floor(totalEpisodes * (0.95 + 0.05 * ease)),
+          });
+
+          if (progress < 1) {
+            rafId = requestAnimationFrame(step);
+          } else {
+            setCounts({ movies: totalMovies, series: totalSeries, episodes: totalEpisodes });
+          }
+        };
+
+        rafId = requestAnimationFrame(step);
       }
-    }, interval);
+    }, { threshold: 0.1 });
 
-    return () => clearInterval(timer);
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [totalMovies, totalSeries, totalEpisodes]);
 
-  // Real IP Heartbeat and Live Stats Fetcher
+  // Real IP Heartbeat and Live Stats Fetcher (only active when tab is visible)
   useEffect(() => {
     const vid = getVisitorId();
+    let isMounted = true;
 
     const pingServer = async () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
       try {
         const res = await fetch(`/api/stats?vid=${encodeURIComponent(vid)}`, {
           method: 'GET',
           cache: 'no-store'
         });
-        if (res.ok) {
+        if (res.ok && isMounted) {
           const data = await res.json();
           if (data && typeof data.onlineUsers === 'number') {
             setOnlineUsers(data.onlineUsers);
-            setIsLiveActive(true);
           }
         }
-      } catch (err) {
-        // Fallback: at least 1 (the current user)
-        setOnlineUsers(prev => Math.max(1, prev));
+      } catch {
+        if (isMounted) setOnlineUsers(prev => Math.max(1, prev));
       }
     };
 
-    // Immediate ping on mount
     pingServer();
+    const pingInterval = setInterval(pingServer, 30000);
 
-    // Ping every 25 seconds to refresh active IP status
-    const pingInterval = setInterval(pingServer, 25000);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') pingServer();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
-    return () => clearInterval(pingInterval);
+    return () => {
+      isMounted = false;
+      clearInterval(pingInterval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   return (
-    <div className="live-stats-container" style={{
-      margin: '32px 0 40px',
-      position: 'relative',
-      zIndex: 2
-    }}>
+    <div
+      ref={containerRef}
+      className="live-stats-container"
+      style={{
+        margin: '32px 0 40px',
+        position: 'relative',
+        zIndex: 2,
+        contain: 'layout paint',
+        transform: 'translateZ(0)'
+      }}
+    >
       {/* Live Active Header Strip */}
       <div style={{
         display: 'flex',
@@ -266,7 +303,7 @@ export default function LiveStatsShowcase({
             marginBottom: '6px',
             fontVariantNumeric: 'tabular-nums'
           }}>
-            {animatedMovies.toLocaleString('uz-UZ')}+
+            {counts.movies.toLocaleString('uz-UZ')}+
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
@@ -315,7 +352,7 @@ export default function LiveStatsShowcase({
             marginBottom: '6px',
             fontVariantNumeric: 'tabular-nums'
           }}>
-            {animatedSeries.toLocaleString('uz-UZ')}+
+            {counts.series.toLocaleString('uz-UZ')}+
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
@@ -364,7 +401,7 @@ export default function LiveStatsShowcase({
             marginBottom: '6px',
             fontVariantNumeric: 'tabular-nums'
           }}>
-            {animatedEpisodes.toLocaleString('uz-UZ')}+
+            {counts.episodes.toLocaleString('uz-UZ')}+
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
@@ -389,3 +426,6 @@ export default function LiveStatsShowcase({
     </div>
   );
 }
+
+const LiveStatsShowcase = memo(LiveStatsShowcaseComponent);
+export default LiveStatsShowcase;

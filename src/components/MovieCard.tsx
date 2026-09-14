@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { MediaItem } from '@/types';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 
@@ -32,7 +32,7 @@ function getGenreColor(genres: string[] = []) {
   return GENRE_COLORS.default;
 }
 
-export default function MovieCard({ item, variant = 'default' }: MovieCardProps) {
+function MovieCardComponent({ item, variant = 'default' }: MovieCardProps) {
   const [imgSrc, setImgSrc] = useState(item.poster);
   const [imgLoaded, setImgLoaded] = useState(false);
   const { isFavorite, toggleFavorite, isLoaded } = useFavorites();
@@ -303,3 +303,15 @@ export default function MovieCard({ item, variant = 'default' }: MovieCardProps)
     </Link>
   );
 }
+
+const MovieCard = memo(MovieCardComponent, (prev, next) => {
+  return (
+    prev.item.id === next.item.id &&
+    prev.item.title === next.item.title &&
+    prev.item.poster === next.item.poster &&
+    prev.item.rating === next.item.rating &&
+    prev.variant === next.variant
+  );
+});
+
+export default MovieCard;

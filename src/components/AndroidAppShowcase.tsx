@@ -39,6 +39,8 @@ export default function AndroidAppShowcase() {
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(61, 220, 132, 0.22) 0%, transparent 70%)',
           filter: 'blur(60px)',
+          transform: 'translateZ(0)',
+          willChange: 'transform',
           pointerEvents: 'none',
         }}
       />
@@ -52,6 +54,8 @@ export default function AndroidAppShowcase() {
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(0, 242, 254, 0.18) 0%, transparent 70%)',
           filter: 'blur(60px)',
+          transform: 'translateZ(0)',
+          willChange: 'transform',
           pointerEvents: 'none',
         }}
       />
