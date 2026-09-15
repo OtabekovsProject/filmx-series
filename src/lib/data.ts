@@ -239,6 +239,7 @@ const FALLBACK_SERIES: Series[] = [
 let cachedMovies: Movie[] | null = null;
 let cachedSeries: Series[] | null = null;
 let cachedAllMedia: MediaItem[] | null = null;
+let cachedCatalogMedia: MediaItem[] | null = null;
 let cachedMediaMap: Map<string, MediaItem> | null = null;
 
 function readJsonFile<T>(filename: string, fallback: T): T {
@@ -287,6 +288,48 @@ export function getAllMedia(): MediaItem[] {
   if (cachedAllMedia) return cachedAllMedia;
   cachedAllMedia = [...getMovies(), ...getSeries()];
   return cachedAllMedia;
+}
+
+export function getCatalogMedia(): MediaItem[] {
+  if (cachedCatalogMedia) return cachedCatalogMedia;
+
+  const movies: MediaItem[] = getMovies().map(m => ({
+    id: m.id,
+    type: 'movie',
+    title: m.title,
+    rawTitle: m.rawTitle || '',
+    poster: m.poster,
+    year: m.year,
+    country: m.country || '',
+    genres: m.genres || [],
+    rating: m.rating,
+    quality: m.quality,
+    duration: m.duration,
+    description: m.description ? m.description.slice(0, 150) : '',
+    actors: m.actors ? m.actors.slice(0, 3) : [],
+    videoUrl: ''
+  }));
+
+  const series: MediaItem[] = getSeries().map(s => ({
+    id: s.id,
+    type: 'series',
+    title: s.title,
+    rawTitle: s.rawTitle || '',
+    poster: s.poster,
+    year: s.year,
+    country: s.country || '',
+    genres: s.genres || [],
+    rating: s.rating,
+    quality: s.quality,
+    totalSeasons: s.totalSeasons || 1,
+    totalEpisodes: s.totalEpisodes || 1,
+    description: s.description ? s.description.slice(0, 150) : '',
+    actors: s.actors ? s.actors.slice(0, 3) : [],
+    seasons: []
+  }));
+
+  cachedCatalogMedia = [...movies, ...series];
+  return cachedCatalogMedia;
 }
 
 export function getMediaById(id: string): MediaItem | undefined {

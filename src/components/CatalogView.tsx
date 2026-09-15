@@ -64,7 +64,7 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
   const initialCountry = searchParams.get('country') || 'all';
   const initialYear = searchParams.get('year') || 'all';
   const initialSort = searchParams.get('sort') || 'newest';
-  const initialQ = searchParams.get('q') || '';
+  const initialQ = searchParams.get('q') || searchParams.get('search') || '';
 
   const [query, setQuery] = useState(initialQ);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQ);
@@ -92,10 +92,10 @@ export default function CatalogView({ initialItems }: CatalogViewProps) {
   useEffect(() => {
     const t = searchParams.get('type');
     const g = searchParams.get('genre');
-    const q = searchParams.get('q');
+    const q = searchParams.get('q') || searchParams.get('search');
     if (t) setTypeFilter(t);
     if (g) setGenreFilter(g);
-    if (q) setQuery(q);
+    if (q !== null && q !== undefined) setQuery(q);
   }, [searchParams]);
 
   // Reset pagination on filter changes

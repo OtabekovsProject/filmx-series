@@ -122,7 +122,7 @@ const jsonLdWebsite = {
         '@type': 'SearchAction',
         target: {
           '@type': 'EntryPoint',
-          urlTemplate: 'https://filmx-series.vercel.app/catalog?search={search_term_string}',
+          urlTemplate: 'https://filmx-series.vercel.app/catalog?q={search_term_string}',
           'query-input': 'required name=search_term_string',
         },
       },

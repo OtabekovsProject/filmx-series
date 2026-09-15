@@ -1,4 +1,4 @@
-import { getAllMedia } from '@/lib/data';
+import { getCatalogMedia } from '@/lib/data';
 import CatalogView from '@/components/CatalogView';
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
@@ -52,7 +52,7 @@ const breadcrumbLd = {
 
 export default function CatalogPage() {
 
-  const allItems = getAllMedia();
+  const allItems = getCatalogMedia();
 
   return (
     <>
