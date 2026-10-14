@@ -29,10 +29,10 @@ export default function MobileBottomNav() {
     window.dispatchEvent(new CustomEvent('filmx_open_search'));
   };
 
-  const isHome = mounted && pathname === '/';
-  const isSeries = mounted && pathname === '/catalog' && searchString.includes('type=series');
-  const isMovies = mounted && pathname === '/catalog' && searchString.includes('type=movie');
-  const isFavorites = mounted && pathname === '/favorites';
+  const isHome = pathname === '/';
+  const isSeries = pathname === '/catalog' && (searchString ? searchString.includes('type=series') : false);
+  const isMovies = pathname === '/catalog' && (searchString ? searchString.includes('type=movie') : false);
+  const isFavorites = pathname === '/favorites';
 
   return (
     <nav className="mobile-bottom-dock" aria-label="Mobil navigatsiya">
@@ -89,8 +89,8 @@ export default function MobileBottomNav() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorites ? '#e50914' : 'none'} stroke={isFavorites ? '#e50914' : 'currentColor'} strokeWidth="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
-            {isLoaded && favoritesCount > 0 && (
-              <span className="mobile-dock-badge">{favoritesCount}</span>
+            {mounted && isLoaded && favoritesCount > 0 && (
+              <span className="mobile-dock-badge" suppressHydrationWarning>{favoritesCount}</span>
             )}
           </div>
           <span className="mobile-dock-label">Sevimlilar</span>
@@ -98,8 +98,8 @@ export default function MobileBottomNav() {
         </Link>
 
         {/* 6. PWA Install (only if installable) */}
-        {canInstall && (
-          <button onClick={promptInstall} className="mobile-dock-item mobile-dock-install" aria-label="Ilovani o'rnatish">
+        {mounted && canInstall && (
+          <button onClick={promptInstall} className="mobile-dock-item mobile-dock-install" aria-label="Ilovani o'rnatish" suppressHydrationWarning>
             <div className="mobile-dock-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

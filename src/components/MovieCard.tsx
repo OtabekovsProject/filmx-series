@@ -190,50 +190,66 @@ function MovieCardComponent({ item, variant = 'default' }: MovieCardProps) {
   // DEFAULT GRID VIEW
   // ═════════════════════════════════════════════
   return (
-    <Link href={href} className="media-card" style={{ textDecoration: 'none' }}>
+    <div className="media-card">
       {/* Poster */}
       <div className="poster-wrap">
-        {!imgLoaded && <div className="poster-skeleton skeleton" />}
+        <Link href={href} className="poster-link" aria-label={item.title} style={{ display: 'block', width: '100%', height: '100%', textDecoration: 'none' }}>
+          {!imgLoaded && <div className="poster-skeleton skeleton" />}
 
-        <img
-          src={imgSrc}
-          alt={item.title}
-          className="poster-img"
-          loading="lazy"
-          decoding="async"
-          onLoad={() => setImgLoaded(true)}
-          onError={() => {
-            setImgSrc('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop');
-            setImgLoaded(true);
-          }}
-          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
-        />
+          <img
+            src={imgSrc}
+            alt={item.title}
+            className="poster-img"
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              setImgSrc('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop');
+              setImgLoaded(true);
+            }}
+            style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
+          />
 
-        {/* Top Badges */}
-        <div className="card-badges">
-          <span className="badge-hd">
-            {item.quality?.includes('4K') ? '4K' : 'FHD'}
-          </span>
-          {isSeries && (
-            <span className="badge-type">
-              {episodeCount ? `${episodeCount} Qism` : 'Serial'}
+          {/* Top Badges */}
+          <div className="card-badges">
+            <span className="badge-hd">
+              {item.quality?.includes('4K') ? '4K' : 'FHD'}
             </span>
-          )}
-          {watched && (
-            <span style={{
-              background: 'rgba(16,185,129,0.92)',
-              color: '#fff',
-              fontSize: '10px',
-              fontWeight: 800,
-              padding: '3px 7px',
-              borderRadius: '4px'
-            }}>
-              ✓ Ko'rildi
-            </span>
-          )}
-        </div>
+            {isSeries && (
+              <span className="badge-type">
+                {episodeCount ? `${episodeCount} Qism` : 'Serial'}
+              </span>
+            )}
+            {watched && (
+              <span style={{
+                background: 'rgba(16,185,129,0.92)',
+                color: '#fff',
+                fontSize: '10px',
+                fontWeight: 800,
+                padding: '3px 7px',
+                borderRadius: '4px'
+              }}>
+                ✓ Ko'rildi
+              </span>
+            )}
+          </div>
 
-        {/* Favorite Button */}
+          {/* Star Rating */}
+          <div className="card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <span>{item.rating ? item.rating.toFixed(1) : '8.5'}</span>
+          </div>
+
+          {/* Neon bottom accent line */}
+          <div
+            className="card-neon-line"
+            style={{ background: accentColor }}
+          />
+        </Link>
+
+        {/* Favorite Button (Independent sibling, NOT nested in <a>!) */}
         {isLoaded && (
           <button
             type="button"
@@ -272,25 +288,13 @@ function MovieCardComponent({ item, variant = 'default' }: MovieCardProps) {
             </svg>
           </button>
         )}
-
-        {/* Star Rating */}
-        <div className="card-rating">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          <span>{item.rating ? item.rating.toFixed(1) : '8.5'}</span>
-        </div>
-
-        {/* Neon bottom accent line */}
-        <div
-          className="card-neon-line"
-          style={{ background: accentColor }}
-        />
       </div>
 
       {/* Card Body */}
       <div className="card-body">
-        <h3 className="card-title" title={item.title}>{item.title}</h3>
+        <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h3 className="card-title" title={item.title}>{item.title}</h3>
+        </Link>
         <div className="card-info">
           <span className="card-genres">
             {item.genres?.slice(0, 2).join(', ') || item.country || ''}
@@ -300,7 +304,7 @@ function MovieCardComponent({ item, variant = 'default' }: MovieCardProps) {
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

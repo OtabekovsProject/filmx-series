@@ -114,7 +114,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="footer-copy">
-          <p style={{ color: 'var(--text-dim)', fontSize: '13px' }}>
+          <p style={{ color: 'var(--text-dim)', fontSize: '13px' }} suppressHydrationWarning>
             © {new Date().getFullYear()} FilmX Series. Barcha huquqlar himoyalangan.
             Ushbu sayt faqat ta&apos;lim va ko&apos;rgazmali maqsadlarda yaratilgan.
           </p>

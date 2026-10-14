@@ -23,6 +23,10 @@ function getVisitorId(): string {
   }
 }
 
+function formatCount(num: number): string {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
 function LiveStatsShowcaseComponent({
   totalMovies,
   totalSeries,
@@ -34,9 +38,9 @@ function LiveStatsShowcaseComponent({
   // Real active online users tracked by real IP
   const [onlineUsers, setOnlineUsers] = useState<number>(1);
   const [counts, setCounts] = useState({
-    movies: Math.floor(totalMovies * 0.95),
-    series: Math.floor(totalSeries * 0.95),
-    episodes: Math.floor(totalEpisodes * 0.95),
+    movies: totalMovies,
+    series: totalSeries,
+    episodes: totalEpisodes,
   });
 
   // Smooth Count-Up Animation via requestAnimationFrame only when visible in viewport
@@ -294,16 +298,19 @@ function LiveStatsShowcaseComponent({
             <span style={{ fontSize: '20px' }}>🎬</span>
           </div>
 
-          <div style={{
-            fontSize: 'clamp(28px, 3.5vw, 36px)',
-            fontWeight: 900,
-            color: '#fff',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-            marginBottom: '6px',
-            fontVariantNumeric: 'tabular-nums'
-          }}>
-            {counts.movies.toLocaleString('uz-UZ')}+
+          <div
+            suppressHydrationWarning
+            style={{
+              fontSize: 'clamp(28px, 3.5vw, 36px)',
+              fontWeight: 900,
+              color: '#fff',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              marginBottom: '6px',
+              fontVariantNumeric: 'tabular-nums'
+            }}
+          >
+            {formatCount(counts.movies)}+
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
@@ -343,16 +350,19 @@ function LiveStatsShowcaseComponent({
             <span style={{ fontSize: '20px' }}>📺</span>
           </div>
 
-          <div style={{
-            fontSize: 'clamp(28px, 3.5vw, 36px)',
-            fontWeight: 900,
-            color: '#fff',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-            marginBottom: '6px',
-            fontVariantNumeric: 'tabular-nums'
-          }}>
-            {counts.series.toLocaleString('uz-UZ')}+
+          <div
+            suppressHydrationWarning
+            style={{
+              fontSize: 'clamp(28px, 3.5vw, 36px)',
+              fontWeight: 900,
+              color: '#fff',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              marginBottom: '6px',
+              fontVariantNumeric: 'tabular-nums'
+            }}
+          >
+            {formatCount(counts.series)}+
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
@@ -392,16 +402,19 @@ function LiveStatsShowcaseComponent({
             <span style={{ fontSize: '20px' }}>⚡</span>
           </div>
 
-          <div style={{
-            fontSize: 'clamp(28px, 3.5vw, 36px)',
-            fontWeight: 900,
-            color: '#fff',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-            marginBottom: '6px',
-            fontVariantNumeric: 'tabular-nums'
-          }}>
-            {counts.episodes.toLocaleString('uz-UZ')}+
+          <div
+            suppressHydrationWarning
+            style={{
+              fontSize: 'clamp(28px, 3.5vw, 36px)',
+              fontWeight: 900,
+              color: '#fff',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              marginBottom: '6px',
+              fontVariantNumeric: 'tabular-nums'
+            }}
+          >
+            {formatCount(counts.episodes)}+
           </div>
 
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>

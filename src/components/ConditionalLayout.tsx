@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ScrollToTop from '@/components/ScrollToTop';
+import PwaInstallBanner from '@/components/PwaInstallBanner';
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,8 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       <ScrollToTop />
       {/* Native-style floating bottom dock on mobile/tablet devices */}
       <MobileBottomNav />
+      {/* Sleek PWA Install Prompt Banner */}
+      <PwaInstallBanner />
     </>
   );
 }

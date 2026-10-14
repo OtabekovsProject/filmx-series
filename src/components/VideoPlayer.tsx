@@ -19,10 +19,23 @@ function optimizeVideoUrl(rawUrl?: string, selectedQuality: string = '1080p'): s
   let url = rawUrl.trim();
   if (url.startsWith('file://')) return url;
 
-  url = url.replace(/^https?:\/\/83\.69\.139\.204\/hdd(\d+)\//i, (m, p1) => `https://${p1}.fayllar1.ru/${p1}/`);
-  url = url.replace(/^https?:\/\/83\.69\.139\.204\/hdd\//i, 'https://15.fayllar1.ru/15/');
-  url = url.replace(/^https?:\/\/fayllar1\.ru\/([^/]+)\//i, (m, p1) => `https://${p1}.fayllar1.ru/${p1}/`);
+  // If already proxied, unwrap inner target URL
+  if (url.includes('/api/stream?url=')) {
+    try {
+      const parsed = new URL(url, 'http://localhost');
+      const inner = parsed.searchParams.get('url');
+      if (inner) url = inner;
+    } catch {}
+  }
 
+  // Canonicalize fayllar hosts
+  url = url.replace(/^https?:\/\/([0-9]+)\.fayllar1\.ru\/([0-9]+)\//i, 'https://fayllar.com/$2/');
+  url = url.replace(/^https?:\/\/fayllar1\.ru\/([0-9]+)\//i, 'https://fayllar.com/$1/');
+  url = url.replace(/^https?:\/\/83\.69\.139\.204\/hdd([0-9]+)\//i, 'https://fayllar.com/$1/');
+  url = url.replace(/^https?:\/\/83\.69\.139\.204\/hdd\//i, 'https://fayllar.com/15/');
+  url = url.replace(/^https?:\/\/([0-9]+)\.fayllar\.com\/([0-9]+)\//i, 'https://fayllar.com/$2/');
+
+  // Apply requested quality switch
   if (selectedQuality.includes('720p')) {
     url = url.replace(/1080p/gi, '720p');
   } else if (selectedQuality.includes('480p')) {
@@ -31,29 +44,12 @@ function optimizeVideoUrl(rawUrl?: string, selectedQuality: string = '1080p'): s
     url = url.replace(/720p|480p/gi, '1080p');
   }
 
-  try {
-    const parsed = new URL(url);
-    parsed.pathname = parsed.pathname
-      .split('/')
-      .map((part) => {
-        try {
-          return encodeURIComponent(decodeURIComponent(part))
-            .replace(/%28/g, '(')
-            .replace(/%29/g, ')')
-            .replace(/%27/g, "'");
-        } catch {
-          return encodeURIComponent(part);
-        }
-      })
-      .join('/');
-    return parsed.toString();
-  } catch {
-    try {
-      return encodeURI(decodeURI(url));
-    } catch {
-      return encodeURI(url);
-    }
+  // Route any fayllar or asilmedia stream through the streaming proxy to prevent 403 Forbidden
+  if (/fayllar(?:\.com|1\.ru)|\b83\.69\.139\.204\b|asilmedia/i.test(url)) {
+    return `/api/stream?url=${encodeURIComponent(url)}`;
   }
+
+  return url;
 }
 
 export default function VideoPlayer({
@@ -72,6 +68,7 @@ export default function VideoPlayer({
 
   const [currentSrc, setCurrentSrc] = useState(() => optimizeVideoUrl(src, quality));
   const [hasError, setHasError] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedQuality, setSelectedQuality] = useState(quality);
   const [isCinemaMode, setIsCinemaMode] = useState(false);
@@ -343,6 +340,7 @@ export default function VideoPlayer({
   };
 
   const handleVideoError = () => {
+    setIsBuffering(false);
     if (!selectedQuality.includes('1080p')) {
       setSelectedQuality('1080p Full HD');
       setCurrentSrc(optimizeVideoUrl(src, '1080p Full HD'));
@@ -350,7 +348,7 @@ export default function VideoPlayer({
       return;
     }
     setHasError(true);
-    setCurrentSrc('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
+    showToast("Zaxira oqimga ulanish taklif etilmoqda...");
   };
 
   const handleEnded = () => {
@@ -586,6 +584,10 @@ export default function VideoPlayer({
             onTimeUpdate={handleTimeUpdate}
             onError={handleVideoError}
             onEnded={handleEnded}
+            onWaiting={() => setIsBuffering(true)}
+            onPlaying={() => { setIsBuffering(false); setHasError(false); }}
+            onCanPlay={() => setIsBuffering(false)}
+            onLoadStart={() => setIsBuffering(true)}
             style={{
               width: '100%',
               height: '100%',
@@ -594,6 +596,43 @@ export default function VideoPlayer({
               background: '#000'
             }}
           />
+
+          {/* Buffering Indicator */}
+          {isBuffering && !hasError && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              background: 'rgba(5, 7, 15, 0.45)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+              zIndex: 15,
+              pointerEvents: 'none'
+            }}>
+              <div style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '50%',
+                border: '3px solid rgba(255, 255, 255, 0.15)',
+                borderTopColor: 'var(--brand-primary)',
+                borderRightColor: 'var(--accent-cyan)',
+                animation: 'spin 0.8s linear infinite',
+              }} />
+              <span style={{
+                color: '#fff',
+                fontSize: '13px',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                textShadow: '0 2px 8px rgba(0,0,0,0.8)'
+              }}>
+                Tas-ix tezyurar oqim yuklanmoqda...
+              </span>
+            </div>
+          )}
 
           {/* On-screen HUD Indicator (Skip / Volume / Pause) */}
           {hudNotice && (
@@ -691,18 +730,52 @@ export default function VideoPlayer({
           {hasError && (
             <div style={{
               position: 'absolute',
-              top: '16px',
-              right: '16px',
-              background: 'rgba(229, 9, 20, 0.9)',
-              color: '#fff',
-              padding: '8px 14px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              zIndex: 10,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              background: 'rgba(7, 10, 18, 0.88)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              zIndex: 18,
+              padding: '24px',
+              textAlign: 'center'
             }}>
-              Oqim almashtirildi (Tas-ix Zaxira)
+              <span style={{ fontSize: '32px' }}>⚡</span>
+              <h4 style={{ color: '#fff', fontSize: '17px', fontWeight: 800, margin: 0 }}>
+                Oqimga ulanishda uzilish bo&apos;ldi
+              </h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', maxWidth: '360px', margin: 0 }}>
+                Server yangilandi. Iltimos qayta urinib ko&apos;ring yoki sifatni o&apos;zgartiring.
+              </p>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                <button
+                  onClick={() => {
+                    setHasError(false);
+                    setIsBuffering(true);
+                    const separator = optimizeVideoUrl(src, selectedQuality).includes('?') ? '&' : '?';
+                    const retryUrl = optimizeVideoUrl(src, selectedQuality) + separator + 'retry=' + Date.now();
+                    setCurrentSrc(retryUrl);
+                    if (videoRef.current) {
+                      videoRef.current.load();
+                      videoRef.current.play().catch(() => {});
+                    }
+                  }}
+                  className="btn-primary"
+                  style={{ padding: '8px 18px', fontSize: '13px' }}
+                >
+                  Qayta urinish ↻
+                </button>
+                <button
+                  onClick={() => handleQualityChange('720p HD')}
+                  className="btn-secondary"
+                  style={{ padding: '8px 16px', fontSize: '13px' }}
+                >
+                  720p HD
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -902,12 +975,12 @@ export default function VideoPlayer({
               {/* Direct Download Button */}
               {src && (
                 <a
-                  href={src}
+                  href={optimizeVideoUrl(src, selectedQuality) + (optimizeVideoUrl(src, selectedQuality).includes('?') ? '&' : '?') + 'download=1'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  download
+                  download={`${title || 'filmx-video'}.mp4`}
                   className="player-tool-btn"
-                  title="To'g'ridan-to'g'ri yuklab olish"
+                  title="To'g'ridan-to'g'ri yuklab olish (Tas-ix tezyurar)"
                 >
                   📥 Yuklash
                 </a>
