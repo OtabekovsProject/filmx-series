@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-10-30T03:56:47.330Z",
-  "durationSeconds": 44,
+  "timestamp": "2026-10-30T11:58:54.281Z",
+  "durationSeconds": 36,
   "mode": "standard",
   "scannedPages": 161,
   "discoveredLinks": 954,
-  "skippedExisting": 733,
-  "candidatesFound": 221,
+  "skippedExisting": 739,
+  "candidatesFound": 215,
   "newMoviesAdded": 1,
-  "newSeriesAdded": 2,
-  "totalMovies": 1324,
+  "newSeriesAdded": 1,
+  "totalMovies": 1325,
   "totalSeries": 422,
   "status": "SUCCESS"
 }
