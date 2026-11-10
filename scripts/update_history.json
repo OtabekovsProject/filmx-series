@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-11-10T01:04:14.881Z",
+  "timestamp": "2026-11-10T14:07:32.225Z",
   "durationSeconds": 38,
   "mode": "standard",
   "scannedPages": 161,
-  "discoveredLinks": 954,
-  "skippedExisting": 709,
+  "discoveredLinks": 957,
+  "skippedExisting": 712,
   "candidatesFound": 245,
   "newMoviesAdded": 0,
   "newSeriesAdded": 0,
